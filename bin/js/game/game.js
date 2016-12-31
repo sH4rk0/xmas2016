@@ -831,7 +831,7 @@ var k2016Game;
             var _text = 'You score ONLY ' + k2016Game.getScore() + ' points!\n' + this.insulti[this.game.rnd.integerInRange(0, this.insulti.length - 1)];
             var _gameOverSpeech = this.game.add.text(210, 390, _text, _style);
             _gameOverSpeech.font = 'Press Start 2P';
-            anonymous();
+            // anonymous();
         };
         GameOver.prototype.update = function () {
         };
@@ -2137,7 +2137,7 @@ var k2016Game;
             var _text = 'You score is ' + k2016Game.getScore() + ' points!';
             var _gameOverSpeech = this.game.add.text(210, 390, _text, _style);
             _gameOverSpeech.font = 'Press Start 2P';
-            anonymous();
+            //anonymous();
         };
         Gamewin.prototype.update = function () {
         };

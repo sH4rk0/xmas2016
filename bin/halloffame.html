@@ -24,35 +24,38 @@
 	<meta property="og:image:type" content="image/jpeg" />
 	<meta property="og:image:width" content="800" />
 	<meta property="og:image:height" content="600" />
-	<meta property="og:description" content="An Xmas 2k16 game dedicated to Salerno, Star Wars and fried fish! " />
+	<meta property="og:description" content="An Xmas 2k16 halloffame! " />
 	<script src="/js/libs/jquery.js"></script>
 	<style>
 body{ background-color:#000; background-image:url(assets/images/halloffame/bg-halloffame.jpg); background-position:top center; background-repeat:no-repeat; padding-top:100px;  }
-h1{ color:#fff; text-align:center; font-size:100%; font-family: 'Press Start 2P', cursive; margin-top: 70px; line-height:130%;}
+h1{ color:#fff; text-align:center; font-size:100%; font-family: 'Press Start 2P', cursive; margin-top: 70px; margin-bottom: 160px; line-height:130%;}
 h1 a{ color:#fff;}
-#halloffame{ margin:0 auto; position:relative; width:100%;  }
-#halloffameList{ margin:100px 35px; padding:0; padding-top:100px; list-style-position: outside; }
-#halloffameList .row{ font-size:80%; color:#fff; text-align:left; font-family: 'Press Start 2P', cursive; padding-bottom:10px;}
+
+h2{ color:#fff; text-align:center; font-size:100%; font-family: 'Press Start 2P', cursive; margin-top: 30px; }
+
+#halloffame, #halloffameListAnon{ margin:0 auto; position:relative; width:100%;  }
+#halloffameList, #halloffameListAnon{ margin:30px 35px; padding:0; padding-top:20px; list-style-position: outside; }
+#halloffameList .row, #halloffameListAnon .row{ font-size:80%; line-height: 120%; color:#fff; text-align:left; font-family: 'Press Start 2P', cursive; padding-bottom:10px;}
 
 @media screen and (min-width: 480px) and (max-width: 767px){	
-h1 {font-size:140%;}
-#halloffame{ margin:0 auto; position:relative; width:80%;  }
-#halloffameList .row{font-size:100%;}
+h1,h2 {font-size:140%;}
+#halloffame,#halloffameListAnon{ margin:0 auto; position:relative; width:80%;  }
+#halloffameList .row,#halloffameListAnon .row{font-size:100%; line-height: 120%;}
 	}
 @media screen and (min-width: 768px)  and (max-width: 1023px) {
-h1 {font-size:180%;}
-#halloffame{ margin:0 auto; position:relative; width:80%;  }
-#halloffameList .row{font-size:120%; padding-bottom:15px;}
+h1,h2  {font-size:180%;}
+#halloffame,#halloffameListAnon{ margin:0 auto; position:relative; width:80%;  }
+#halloffameList .row,#halloffameListAnon .row{font-size:120%; line-height: 120%; padding-bottom:15px;}
 	}
 @media screen and (min-width: 1024px)  and (max-width: 1199px) {	
-h1 {font-size:220%;}
-#halloffame{ margin:0 auto; position:relative; width:70%;  }
-#halloffameList .row{font-size:140%; padding-bottom:15px;}
+h1,h2  {font-size:220%;}
+#halloffame,#halloffameListAnon{ margin:0 auto; position:relative; width:70%;  }
+#halloffameList .row,#halloffameListAnon .row{font-size:140%; line-height: 140%; padding-bottom:15px;}
 	}
 @media screen and (min-width: 1200px) {	
-h1 {font-size:260%;}
-#halloffame{ margin:0 auto; position:relative; width:70%;  }
-#halloffameList .row{font-size:160%; padding-bottom:20px;}
+h1,h2 {font-size:260%;}
+#halloffame,#halloffameListAnon{ margin:0 auto; position:relative; width:70%;  }
+#halloffameList .row,#halloffameListAnon .row{font-size:160%; line-height: 160%; padding-bottom:20px;}
 	}
 	
 </style>
@@ -63,16 +66,21 @@ h1 {font-size:260%;}
 	<h1><a href="/">X-MAS RUN 2k16</a><br />HALL OF FAME</h1>
 
 	<div id="halloffame">
-		<img src="assets/images/halloffame/spinner.gif" id="spinner" style="position:absolute; top:0; left:370px; " />
+		<img src="assets/images/halloffame/spinner.gif" id="spinner" style="position:absolute; top:0; left:50%; " />
+
+<h2>TOP PLAYERS</h2>
 <ol id="halloffameList"></ol>
+
+<h2>TOP ANONYMOUS PLAYERS</h2>
+<ol id="halloffameListAnon"></ol>
 </div>
 
 <script>
 
 	$halloffameList = $("#halloffameList");
+	$halloffameListAnon = $("#halloffameListAnon");
 
 	function getHalloffame() {
-
 
 
 		$.ajax({
@@ -85,6 +93,38 @@ h1 {font-size:260%;}
 
 			
 			var objs = data.Root.Scores;
+
+
+var shared=[];
+var anonimous=[];
+for (var i = 0; i < objs.length; i++) {
+
+				if(objs[i].name.indexOf("anonymous")!=-1 && objs[i].score>0){
+
+				anonimous.push(objs[i])
+				}
+				else if(objs[i].name.indexOf("anonymous")==-1 && objs[i].score>0){
+				shared.push(objs[i]);
+
+				}
+
+		}
+var toRemove=[];
+for (var i = 0; i < shared.length; i++) {
+
+	removeEl(shared[i].score);
+}
+
+function removeEl(value){
+
+for (var a = 0; a < anonimous.length; a++) {
+
+		if(anonimous[a].score==value ){ break;}
+	}
+
+anonimous.splice(a,1);
+}
+
 
 			
 			$("#spinner").hide();
@@ -102,29 +142,31 @@ h1 {font-size:260%;}
 				}
 			}
 
-			
-
-			displayData(objs.sort(dynamicSort("score")));
+			displayData(shared.sort(dynamicSort("score")),anonimous.sort(dynamicSort("score")));
 
 
-		}).fail(function (jqXHR, textStatus, errorThrown) {
-
-			//console.log(jqXHR, textStatus, errorThrown)
-
-		});
+		}).fail(function (jqXHR, textStatus, errorThrown) {});
 
 
 
 	}
 
-	function displayData(data) {
+	function displayData(data,data2) {
 
-		console.log(data);
-
-		for (var i = 0; i < data.length; i++) {
+		
+	for (var i = 0; i < data.length; i++) {
 
 
 			$halloffameList.append("<li class='row'>" + data[i].name + " scored " + data[i].score + " points</li>")
+
+
+		}
+
+
+		for (var i = 0; i < data2.length; i++) {
+
+
+			$halloffameListAnon.append("<li class='row'>" + data2[i].name + " scored " + data2[i].score + " points</li>")
 
 
 		}

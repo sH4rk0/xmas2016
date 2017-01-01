@@ -102,7 +102,7 @@ module k2016Game {
 		    _gameOverSpeech.font='Press Start 2P';
 
 
-           // anonymous();
+            anonymous();
            
 
 

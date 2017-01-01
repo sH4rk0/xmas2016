@@ -36,16 +36,10 @@ module k2016Game {
 			   
 			   _spriteText.anchor.set(0.5);
 			   this.startBtn.addChild(_spriteText);
+
+			   this.game.input.onDown.addOnce(function(){goState("Menu",this.game);}, this);
 			   
-	   		   this.startBtn.inputEnabled = true;
-
-      
-
-				this.startBtn.events.onInputDown.add(function(){
-						
-						goState("Menu",this.game);
-							
-				}, this);
+	   	
             
                this.startBtn.visible=false;
 			  // this.loadingContainer.addChild(this.startBtn);
@@ -83,8 +77,7 @@ module k2016Game {
 		}				
 		
 
- 		this.game.load.script('webfont', 'http://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
-
+ 		this.game.load.script('webfont', '/js/libs/webfonts.js');
 		//this.setPosition();
 			
         }

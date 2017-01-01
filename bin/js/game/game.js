@@ -27,10 +27,7 @@ var k2016Game;
             var _spriteText = this.game.add.text(0, 0, 'START', { fill: '#ffffff' });
             _spriteText.anchor.set(0.5);
             this.startBtn.addChild(_spriteText);
-            this.startBtn.inputEnabled = true;
-            this.startBtn.events.onInputDown.add(function () {
-                k2016Game.goState("Menu", this.game);
-            }, this);
+            this.game.input.onDown.addOnce(function () { k2016Game.goState("Menu", this.game); }, this);
             this.startBtn.visible = false;
             // this.loadingContainer.addChild(this.startBtn);
             //Loading container
@@ -59,7 +56,7 @@ var k2016Game;
             for (var i = 0; i < gameData.assets.sounds.length; i++) {
                 this.game.load.audio(gameData.assets.sounds[i].name, gameData.assets.sounds[i].paths);
             }
-            this.game.load.script('webfont', 'http://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
+            this.game.load.script('webfont', '/js/libs/webfonts.js');
             //this.setPosition();
         };
         Preloader.prototype.fileComplete = function (progress, cacheKey, success, totalLoaded, totalFiles) { this.loadingPerc.text = progress + "%"; };
@@ -831,7 +828,7 @@ var k2016Game;
             var _text = 'You score ONLY ' + k2016Game.getScore() + ' points!\n' + this.insulti[this.game.rnd.integerInRange(0, this.insulti.length - 1)];
             var _gameOverSpeech = this.game.add.text(210, 390, _text, _style);
             _gameOverSpeech.font = 'Press Start 2P';
-            // anonymous();
+            anonymous();
         };
         GameOver.prototype.update = function () {
         };
@@ -934,13 +931,19 @@ var k2016Game;
     k2016Game.goState = goState;
     var initGame = (function () {
         function initGame(width, height) {
-            var dpr = devicePixelRatio || 1;
-            if (!width) {
-                width = screen.width * dpr;
+            var dpr = 1;
+            try {
+                if (devicePixelRatio != undefined) {
+                    dpr = devicePixelRatio || 1;
+                    if (!width) {
+                        width = screen.width * dpr;
+                    }
+                    if (!height) {
+                        height = screen.height * dpr;
+                    }
+                }
             }
-            if (!height) {
-                height = screen.height * dpr;
-            }
+            catch (err) { }
             this.game = new Phaser.Game(width, height, Phaser.AUTO, "", null, false, true);
             this.game.state.add("Boot", k2016Game.Boot, false);
             this.game.state.add("Preloader", k2016Game.Preloader, false);
@@ -2137,7 +2140,7 @@ var k2016Game;
             var _text = 'You score is ' + k2016Game.getScore() + ' points!';
             var _gameOverSpeech = this.game.add.text(210, 390, _text, _style);
             _gameOverSpeech.font = 'Press Start 2P';
-            //anonymous();
+            anonymous();
         };
         Gamewin.prototype.update = function () {
         };

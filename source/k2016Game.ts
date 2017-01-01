@@ -126,14 +126,22 @@ module k2016Game {
 
         constructor(width?: number, height?: number) {
 
-            var dpr = devicePixelRatio || 1;
+             var dpr: number = 1;
+            try {
+                if (devicePixelRatio != undefined) {
+                    dpr = devicePixelRatio || 1;
 
-            if (!width) {
-                width = screen.width * dpr;
-            }
-            if (!height) {
-                height = screen.height * dpr;
-            }
+
+                    if (!width) {
+                        width = screen.width * dpr;
+                    }
+                    if (!height) {
+                        height = screen.height * dpr;
+                    }
+
+                }
+
+            } catch (err) {  }
 
             this.game = new Phaser.Game(width, height, Phaser.AUTO, "", null, false, true);
 

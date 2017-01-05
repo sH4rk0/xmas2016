@@ -6,7 +6,7 @@ module k2016Game {
     export class GameOver extends Phaser.State {
 
 
-        private gameoverTheme: Phaser.Sound;
+       
         private btnGreen: Phaser.Sprite;
         private btnBlue: Phaser.Sprite;
         private btnRed: Phaser.Sprite;
@@ -60,7 +60,7 @@ module k2016Game {
             this.btnGreen.addChild(_spriteText);
             this.btnGreen.inputEnabled = true;
             this.btnGreen.events.onInputDown.add(function () {
-                this.gameoverTheme.stop();
+                stopSound(gameSound.gameover);
                 k2016Game.goState("GameWing", this.game);
             }, this);
 
@@ -87,14 +87,12 @@ module k2016Game {
             this.btnRed.addChild(_spriteText);
             this.btnRed.inputEnabled = true;
             this.btnRed.events.onInputDown.add(function () {
-                this.gameoverTheme.stop();
+                stopSound(gameSound.gameover);
                 k2016Game.goState("Menu", this.game);
             }, this);
 
 
-            this.gameoverTheme = this.game.add.audio('final', 1, true);
-            this.gameoverTheme.allowMultiple = true;
-            this.gameoverTheme.play();
+           playSound(gameSound.gameover);
 
             _style = { font: 'normal 25px', fill: '#ffffff', stroke: '#000000', strokeThickness: 0 };
             var _text = 'You score ONLY ' + getScore() + ' points!\n' + this.insulti[this.game.rnd.integerInRange(0, this.insulti.length-1)];
@@ -102,7 +100,7 @@ module k2016Game {
 		    _gameOverSpeech.font='Press Start 2P';
 
 
-            anonymous();
+           anonymous();
            
 
 

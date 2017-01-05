@@ -11,8 +11,7 @@ module k2016Game {
         gameState: GameWing;
         x: number;
         y: number;
-        private explosionAudio: Phaser.Sound;
-
+        
 
         constructor(game: Phaser.Game, gameState: GameWing, x: number, y: number, name: string, type: string) {
 
@@ -22,10 +21,7 @@ module k2016Game {
             this.game = game;
             this.gameState = gameState;
 
-            this.explosionAudio = this.game.add.audio('explosion', 1, false);
-            this.explosionAudio.allowMultiple = true;
-            this.explosionAudio.play();
-
+            playSound(gameSound.explosion);
 
             var anim = this.animations.add('boom', null, 20, false);
             this.anchor.set(.5);

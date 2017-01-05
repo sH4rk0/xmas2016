@@ -9,8 +9,6 @@ module k2016Game {
 
         game: Phaser.Game;
         gameState: GameWing;
-
-        private tieAudio: Phaser.Sound;
         private audioStarted:boolean;
         private shoots:number;
        
@@ -30,9 +28,8 @@ module k2016Game {
             this.shoots=2;
 
             this.audioStarted=false;
-            this.tieAudio = this.game.add.audio('tieFly', 1, false);
-            this.tieAudio.allowMultiple = true;
-            this.tieAudio.volume=.5;
+
+            
             this.scale.set(2);
             this.anchor.set(.5);
            
@@ -78,9 +75,9 @@ module k2016Game {
               if (this.x < (this.game.camera.x + 1024) && ! this.audioStarted) { 
                  
                  this.audioStarted=true;
-                  this.tieAudio.play();
-                 // this.tieAudio.onStop.add(function(){ this.destroy();},this.tieAudio)
-                 
+
+                 playSound(gameSound.tiefly)
+                
                  }
              if (this.x < this.game.camera.x - 100) { this.removeEnemy(); }
 

@@ -26,6 +26,8 @@ module k2016Game {
         private gameTitle: Phaser.Text;
         private gameSubTitle: Phaser.Text;
 
+        private introSkip: Phaser.Text;
+
         private pCounter: number = 0;
         private pStep: number = Math.PI * 3 / 270;
 
@@ -40,9 +42,6 @@ module k2016Game {
         private mid_emitter: Phaser.Emitter;
         private front_emitter: Phaser.Emitter;
 
-        private introTheme: Phaser.Sound;
-        private mainTheme: Phaser.Sound;
-
         private max: number = 0;
 
         private letters: Array<string> = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
@@ -51,8 +50,7 @@ module k2016Game {
 
         private penguins: any;
         private lampiamento: boolean = false;
-        public openLayerAudio: Phaser.Sound;
-        public levelAudio: Phaser.Sound;
+        
 
         private levelText: Phaser.Text;
         private levelLabel: Phaser.Text;
@@ -70,6 +68,8 @@ module k2016Game {
         }
 
         create() {
+
+            setUpGame(this.game);
 
             setScore(0);
             this.game.world.setBounds(0, 0, 1024, 600);
@@ -165,6 +165,14 @@ module k2016Game {
             this.gameSubTitle.font = 'Press Start 2P';
 
 
+            //tap to skip
+            _style = { font: 'normal 14px', fill: '#ffffff', stroke: '#ff0000', strokeThickness: 0 };
+            this.introSkip = this.game.add.text(820, 580, "TAP TO SKIP", _style);
+            this.introSkip.anchor.set(.5);
+            this.introSkip.alpha = 1;
+            this.introSkip.font = 'Press Start 2P';
+
+
             //fishfries
 
             this.fishfries = this.game.add.image(800, -140, "fishfries");
@@ -185,7 +193,8 @@ module k2016Game {
             this.btnGreen.inputEnabled = true;
             this.btnGreen.events.onInputDown.add(function () {
 
-                this.mainTheme.stop();
+                stopSound(gameSound.menu);
+
                 k2016Game.goState("GameWing", this.game);
             }, this);
 
@@ -239,7 +248,8 @@ module k2016Game {
                 setLevel(_level);
                 this.levelText.text=getLevelLabel();
 
-                this.levelAudio.play();
+                 playSound(gameSound.tieShot);
+
 
             }, this);
 
@@ -297,13 +307,7 @@ module k2016Game {
             this.mid_emitter.start(false, 12000);
             this.front_emitter.start(false, 6000);
 
-            this.introTheme = this.game.add.audio('intro', 1, false);
-            this.introTheme.allowMultiple = true;
-            this.introTheme.play();
-
-            this.mainTheme = this.game.add.audio('starwars', 1, true);
-            this.mainTheme.allowMultiple = true;
-
+            playSound(gameSound.intro);
 
             _style = { font: 'normal 40px', fill: '#ffffff', stroke: '#000000', strokeThickness: 8, wordWrap: true, wordWrapWidth: 1000 };
             this.textwriter = this.game.add.text(this.game.world.centerX, this.game.world.centerY, "", _style);
@@ -355,16 +359,14 @@ module k2016Game {
             //credits screen end
             //------------------------------------------
 
-            this.openLayerAudio = this.game.add.audio('lightSaber', 1, false);
-            this.openLayerAudio.allowMultiple = true;
+            this.game.input.onDown.addOnce(this.openCurtain, this);
 
-             this.levelAudio = this.game.add.audio('tieShot', 1, false);
-            this.levelAudio.allowMultiple = true;
+             
 
 
 
-            //setFirstTime(false);
-            //this.openCurtain()
+       //setFirstTime(false);
+       //this.openCurtain()
             if (getFirstTime()) { this.textWriter(0); } else { this.openCurtain() }
 
 
@@ -372,7 +374,7 @@ module k2016Game {
 
          openCredits() {
 
-            this.game.time.events.add(300, function () { this.openLayerAudio.play(); }, this);
+            this.game.time.events.add(300, function () { playSound(gameSound.lightsaber); }, this);
             this.buttonsGroup.ignoreChildInput = true;
             var tween = this.game.add.tween(this.creditGroup).to({ x: 0, alpha: 1 }, 500, Phaser.Easing.Cubic.Out, true, 600);
             tween.onComplete.add(function () {
@@ -385,7 +387,7 @@ module k2016Game {
 
          closeCredits() {
 
-            this.game.time.events.add(300, function () { this.openLayerAudio.play(); }, this);
+            this.game.time.events.add(300, function () { playSound(gameSound.lightsaber); }, this);
 
             this.creditGroup.ignoreChildInput = true;
             var tween = this.game.add.tween(this.creditGroup).to({ x: -1024, alpha: 0 }, 500, Phaser.Easing.Cubic.Out, true, 600);
@@ -401,7 +403,7 @@ module k2016Game {
 
         openHow2play() {
 
-            this.game.time.events.add(300, function () { this.openLayerAudio.play(); }, this);
+            this.game.time.events.add(300, function () { playSound(gameSound.lightsaber); }, this);
             this.buttonsGroup.ignoreChildInput = true;
             var tween = this.game.add.tween(this.how2playGroup).to({ x: 0, alpha: 1 }, 500, Phaser.Easing.Cubic.Out, true, 600);
             tween.onComplete.add(function () {
@@ -415,7 +417,7 @@ module k2016Game {
 
         closeHow2play() {
 
-            this.game.time.events.add(300, function () { this.openLayerAudio.play(); }, this);
+            this.game.time.events.add(300, function () { playSound(gameSound.lightsaber); }, this);
 
             this.how2playGroup.ignoreChildInput = true;
             var tween = this.game.add.tween(this.how2playGroup).to({ x: -1024, alpha: 0 }, 500, Phaser.Easing.Cubic.Out, true, 600);
@@ -430,10 +432,14 @@ module k2016Game {
 
 
         openCurtain() {
-            this.introTheme.stop();
-            this.mainTheme.play();
-           // this.mainTheme.loopFull(1);
-           // this.mainTheme.onLoop.add(this.playLevelMusic,this)
+                    this.introSkip.alpha=0;
+                            setFirstTime(false);
+                            this.textwriter.text = "";
+                            this.textwriter.alpha = 0;
+                            this.textArr = [];
+            stopSound(gameSound.intro);
+            playSound(gameSound.menu);
+          
 
             this.game.add.tween(this.curtainBackLeft).to({ x: this.curtainBackLeft.x - this.curtainBackLeft.width }, 1600, Phaser.Easing.Cubic.Out, true);
             this.game.add.tween(this.curtainBackRight).to({ x: this.curtainBackRight.x + this.curtainBackRight.width }, 1600, Phaser.Easing.Cubic.Out, true);
@@ -458,14 +464,7 @@ module k2016Game {
             this.game.add.tween(this.levelLabel).to({ y: 520 }, 1000, Phaser.Easing.Cubic.Out, true, 800);
 
 
-
-
         }
-
-
-
-
-
 
         update() {
 
@@ -499,6 +498,8 @@ module k2016Game {
         }
 
         textWriter(index: number) {
+
+            if(!getFirstTime) return;
             var _this = this;
             var texts = [
 
@@ -574,14 +575,9 @@ module k2016Game {
                     var scoreTween = scoreValue.game.add.tween(scoreValue.menu.textwriter).to({ alpha: 0 }, 1000, Phaser.Easing.Quadratic.Out, true, 1000);
                     scoreTween.onComplete.add(function () {
 
-                        //console.log(scoreValue.callback);
                         if (scoreValue.callback == 5) {
 
-                            setFirstTime(false);
-                            scoreValue.menu.textwriter.text = "";
-                            scoreValue.menu.textwriter.alpha = 0;
-                            scoreValue.menu.textArr = [];
-                            scoreValue.menu.openCurtain();
+                           if(getFirstTime())  scoreValue.menu.openCurtain();
 
                         } else { scoreValue.menu.textWriter(scoreValue.callback); }
 
@@ -626,20 +622,10 @@ module k2016Game {
 
         stopEmitters() {
 
-            //return;
-
             this.back_emitter.destroy();
             this.front_emitter.destroy();
             this.mid_emitter.destroy();
-            /*return;
-                this.back_emitter.on=false;
-                this.front_emitter.on=false;
-                this.mid_emitter.on=false;
-            	
-                 this.back_emitter.forEachExists(function(obj){ obj.kill(); }, this);
-                 this.front_emitter.forEachExists(function(obj){ obj.kill(); }, this);
-                 this.mid_emitter.forEachExists(function(obj){ obj.kill(); }, this);
-            */
+          
 
         }
 

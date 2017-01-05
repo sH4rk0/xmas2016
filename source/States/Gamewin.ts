@@ -49,7 +49,7 @@ this.game.world.x=0;
             this.btnGreen.addChild(_spriteText);
             this.btnGreen.inputEnabled = true;
             this.btnGreen.events.onInputDown.add(function () {
-                this.gameoverTheme.stop();
+                 stopSound(gameSound.gameover);
                 k2016Game.goState("GameWing", this.game);
             }, this);
 
@@ -76,14 +76,11 @@ this.game.world.x=0;
             this.btnRed.addChild(_spriteText);
             this.btnRed.inputEnabled = true;
             this.btnRed.events.onInputDown.add(function () {
-                this.gameoverTheme.stop();
+                 stopSound(gameSound.gameover);
                 k2016Game.goState("Menu", this.game);
             }, this);
 
-
-            this.gameoverTheme = this.game.add.audio('final', 1, true);
-            this.gameoverTheme.allowMultiple = true;
-            this.gameoverTheme.play();
+            playSound(gameSound.gameover);
 
             _style = { font: 'normal 25px', fill: '#ffffff', stroke: '#000000', strokeThickness: 0 };
             var _text = 'You score is ' + getScore() + ' points!';

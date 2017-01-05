@@ -71,14 +71,17 @@ module k2016Game {
 		this.game.load.bitmapFont(gameData.assets.bitmapfont[i].name, gameData.assets.bitmapfont[i].imgpath, gameData.assets.bitmapfont[i].xmlpath);
 		}*/
 
-		// SOUNDS		
+		// SOUNDS
+		 var _sound: Phaser.Sound;
+           
 		for (var i=0; i<gameData.assets.sounds.length; i++){ 
 			this.game.load.audio(gameData.assets.sounds[i].name, gameData.assets.sounds[i].paths);
+
 		}				
 		
 
- 		this.game.load.script('webfont', '/js/libs/webfonts.js');
-		//this.setPosition();
+ 		this.game.load.script('webfont', 'js/libs/webfonts.js');
+	
 			
         }
 

@@ -10,8 +10,6 @@ module k2016Game {
         game: Phaser.Game;
         gameState: GameWing;
         private onGround: boolean = false;
-
-        private yeahAudio: Phaser.Sound;
         private yeahhState: boolean;
         private stopFlap: boolean;
 
@@ -22,6 +20,8 @@ module k2016Game {
         constructor(game: Phaser.Game, gameState: GameWing) {
 
             super(game, 50, game.world.centerY, "delucaFly");
+
+           
 
             this.gameState = gameState;
             this.game.physics.arcade.enableBody(this);
@@ -44,9 +44,7 @@ module k2016Game {
 
             this.game.add.existing(this);
 
-            this.yeahAudio = this.game.add.audio('yeahh', .5, false);
-            this.yeahAudio.allowMultiple = true;
-
+        
 
 
         }
@@ -75,10 +73,12 @@ module k2016Game {
             if (!this.stopFlap) {
 
                 if (!!this.alive) {
-                   this.gameState.engineLoop.volume = .4;
+
+                    setSoundVolume(gameSound.engine,.4);
+                    getSound(gameSound.engine)
                     this.body.velocity.y = -200;
                     this.game.add.tween(this).to({ angle: -40 }, 100).start();
-                    this.game.add.tween(this.gameState.engineLoop).to({ volume: .1 }, 500).start();
+                    this.game.add.tween(getSound(gameSound.engine)).to({ volume: .1 }, 500).start();
 
                 }
             }
@@ -104,7 +104,8 @@ module k2016Game {
             if (!this.yeahhState && this.alive) {
 
                 this.yeahhState = true;
-                this.yeahAudio.play();
+
+                playSound(gameSound.yeahh)
                 this.gameState.tweenScore(750);
 
                 var score: string = "750";
@@ -149,7 +150,6 @@ module k2016Game {
 
         onKilled() {
 
-            this.yeahAudio.destroy();
             this.gameState.playerKilled();
 
         };

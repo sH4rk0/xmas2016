@@ -13,8 +13,6 @@ module k2016Game {
         private scrolled: boolean;
         private who: string;
 
-         private bonusAudio: Phaser.Sound;
-
         constructor(game: Phaser.Game, gameState: GameWing, type: string, x: number, y: number) {
 
 
@@ -31,11 +29,6 @@ module k2016Game {
             this.anchor.set(.5, 1);
             game.add.existing(this)
 
-
-            this.bonusAudio = this.game.add.audio('colliderSound', .5, false);
-            this.bonusAudio.allowMultiple = true;
-            
-
         }
 
 
@@ -46,8 +39,8 @@ module k2016Game {
 
                 this.scrolled = true;
                 this.gameState.tweenScore(50);
-                this.bonusAudio.play();
-                  //this.bonusAudio.onStop.add(function(){ this.destroy(); },this.bonusAudio);
+
+                playSound(gameSound.colliderSound);
 
                 var score: string = "50";
                 var _style = { font: 'normal 30px', fill: '#ffffff', stroke: '#1d5779', strokeThickness: 10 };

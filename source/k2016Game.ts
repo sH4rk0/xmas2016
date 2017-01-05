@@ -14,55 +14,131 @@ module k2016Game {
     var _playerScore: number = 0;
     var _firstTime: boolean = true;
     var _level: number = 2;
+    var _game: Phaser.Game;
+    var _gameSetup: boolean = false;
+    var _gameSounds: Array<Phaser.Sound> = [];
 
 
     export function setFirstTime(_val: boolean): void { _firstTime = _val; }
     export function getFirstTime(): boolean { return _firstTime; }
 
     export function getScore(): number { return _playerScore; }
-    export function setScore(val: number): void {  _playerScore = val; }
+    export function setScore(val: number): void { _playerScore = val; }
 
- export function isMobile(game:Phaser.Game): boolean { 
-     
-      if (game.device.touch && (game.device.iOS || game.device.android || game.device.windowsPhone)) {
-          return true;
+    export function setGame(game: Phaser.Game) { _game = game; }
+    export function getGame(): Phaser.Game { return _game; }
+
+    export function getSound(_sound: gameSound): Phaser.Sound {
+
+        return _gameSounds[_sound];
+
     }
-      else{
-          return false;
-      }
-     }
-   
+
+    export function playSound(_sound: gameSound): void {
+
+        _gameSounds[_sound].play();
+
+    }
+
+    export function stopSound(_sound: gameSound): void {
+
+        _gameSounds[_sound].stop();
+
+    }
+
+    export function pauseSound(_sound: gameSound): void {
+
+        _gameSounds[_sound].stop();
+
+    }
+
+    export function setSoundVolume(_sound: gameSound, _volume: number): void {
+
+        _gameSounds[_sound].volume = _volume;
+
+    }
+
+    export enum gameSound {
+        intro,
+        menu,
+        lightsaber,
+        tieShot,
+        ingame,
+        engine,
+        explosion,
+        bonus,
+        colliderSound,
+        yeahh,
+        gameover,
+        attacksequence,
+        stayfocused,
+        watchenemy,
+        theforce,
+        stayontarget,
+        tiefly,
+        usetheforce
+    }
+
+    export function setUpGame(_game: Phaser.Game): void {
+
+        if (!_gameSetup) {
+
+            //console.log("gameSetup");
+            setGame(_game);
+
+            var _sound: Phaser.Sound;
+            for (var i = 0; i < gameData.assets.sounds.length; i++) {
+                _sound = _game.add.audio(gameData.assets.sounds[i].name, gameData.assets.sounds[i].volume, gameData.assets.sounds[i].loop);
+                _sound.allowMultiple = true;
+                _gameSounds.push(_sound);
+            }
+            _gameSetup = true;
+
+        }
+
+    }
+
+    export function isMobile(game: Phaser.Game): boolean {
+
+        if (game.device.touch && (game.device.iOS || game.device.android || game.device.windowsPhone)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
 
     export function getLevel(): number { return _level; }
 
-    export function getLevelLabel(): string { 
-        
-        var _label:string;
+    export function getLevelLabel(): string {
+
+        var _label: string;
         switch (_level) {
-                    case 0:
-                        _label = "JAR JAR";
-                        break;
+            case 0:
+                _label = "JAR JAR";
+                break;
 
-                    case 1:
-                        _label = "TROOPER";
-                        break;
+            case 1:
+                _label = "TROOPER";
+                break;
 
-                    case 2:
-                       _label = "JEDI";
-                        break;
+            case 2:
+                _label = "JEDI";
+                break;
 
-                    default:
-                        break;
-                }
+            default:
+                break;
+        }
 
 
-        return _label; 
+        return _label;
     }
     export function setLevel(val: number): void { _level = val; }
 
     export function getLevelData(): any {
 
-        var _arr:any=JSON.parse(JSON.stringify(gameData.levels[getLevel()].slice()));
+        var _arr: any = JSON.parse(JSON.stringify(gameData.levels[getLevel()].slice()));
         return _arr;
 
     }
@@ -96,23 +172,23 @@ module k2016Game {
     export function goState(_state: string, _game: Phaser.Game): void {
 
         var st = <Phaser.Plugin.StateTransition>_game.plugins.add(Phaser.Plugin.StateTransition);
-        if(isMobile(_game)){
+        if (isMobile(_game)) {
 
-             st.configure({
-            duration: 1000,
-            ease: Phaser.Easing.Exponential.InOut,
-            properties: { alpha: 0 }
-        });
+            st.configure({
+                duration: 1000,
+                ease: Phaser.Easing.Exponential.InOut,
+                properties: { alpha: 0 }
+            });
 
-        }else{
-             st.configure({
-            duration: 1000,
-            ease: Phaser.Easing.Exponential.InOut,
-            properties: { alpha: 0, scale: { x: 1.5, y: 1.5 } }
-        });
+        } else {
+            st.configure({
+                duration: 1000,
+                ease: Phaser.Easing.Exponential.InOut,
+                properties: { alpha: 0, scale: { x: 1.5, y: 1.5 } }
+            });
 
         }
-       
+
 
         st.to(_state);
 
@@ -126,7 +202,7 @@ module k2016Game {
 
         constructor(width?: number, height?: number) {
 
-             var dpr: number = 1;
+            var dpr: number = 1;
             try {
                 if (devicePixelRatio != undefined) {
                     dpr = devicePixelRatio || 1;
@@ -141,9 +217,9 @@ module k2016Game {
 
                 }
 
-            } catch (err) {  }
+            } catch (err) { }
 
-            this.game = new Phaser.Game(width, height, Phaser.AUTO, "", null, false, true);
+            this.game = new Phaser.Game(width, height, Phaser.CANVAS, "", null, false, true);
 
             this.game.state.add("Boot", Boot, false);
             this.game.state.add("Preloader", Preloader, false);
@@ -152,8 +228,6 @@ module k2016Game {
             this.game.state.add("Gameover", GameOver, false);
             this.game.state.add("Gamewin", Gamewin, false);
             this.game.state.start("Boot");
-
-
 
         }
 
@@ -282,37 +356,41 @@ var gameData = {
 
         sounds: [
 
-            { name: "intro", paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.mp3"] },
-            { name: "game", paths: ["assets/sounds/gameTheme.ogg", "assets/sounds/gameTheme.mp3"] },
-            { name: "final", paths: ["assets/sounds/final.ogg", "assets/sounds/final.mp3"] },
-            { name: "main", paths: ["assets/sounds/main.ogg", "assets/sounds/main.mp3"] },
-            { name: "starwars", paths: ["assets/sounds/starwars.ogg", "assets/sounds/starwars.mp3"] },
-            { name: "explosion", paths: ["assets/sounds/explosion.ogg", "assets/sounds/explosion.mp3"] },
-            { name: "bonus", paths: ["assets/sounds/bonus.ogg", "assets/sounds/bonus.mp3"] },
-            // { name: "alarm", paths: ["assets/sounds/alarm.ogg", "assets/sounds/alarm.mp3"] },
-            { name: "engine", paths: ["assets/sounds/engine.ogg", "assets/sounds/engine.mp3"] },
-            { name: "tieShot", paths: ["assets/sounds/tieShot.ogg", "assets/sounds/tieShot.mp3"] },
-            { name: "tieFly", paths: ["assets/sounds/tieFly.ogg", "assets/sounds/tieFly.mp3"] },
 
-            { name: "watchEnemy", paths: ["assets/sounds/watchEnemy.ogg", "assets/sounds/watchEnemy.mp3"] },
-            { name: "TheForce", paths: ["assets/sounds/TheForce.ogg", "assets/sounds/TheForce.mp3"] },
-            { name: "stayOnTarget", paths: ["assets/sounds/stayOnTarget.ogg", "assets/sounds/stayOnTarget.mp3"] },
-            { name: "missionFailure", paths: ["assets/sounds/missionFailure.ogg", "assets/sounds/missionFailure.mp3"] },
-            { name: "lightSaber", paths: ["assets/sounds/lightSaber.ogg", "assets/sounds/lightSaber.mp3"] },
-            { name: "colliderSound", paths: ["assets/sounds/colliderSound.ogg", "assets/sounds/colliderSound.mp3"] },
+            { name: "intro", paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.m4a"], volume: 1, loop: false },
+            { name: "starwars", paths: ["assets/sounds/starwars.ogg", "assets/sounds/starwars.m4a"], volume: 1, loop: true },
+            { name: "lightSaber", paths: ["assets/sounds/lightSaber.ogg", "assets/sounds/lightSaber.m4a"], volume: 1, loop: false },
+            { name: "tieShot", paths: ["assets/sounds/tieShot.ogg", "assets/sounds/tieShot.m4a"], volume: .5, loop: false },
+            { name: "game", paths: ["assets/sounds/gameTheme.ogg", "assets/sounds/gameTheme.m4a"], volume: 1, loop: true },
+            { name: "engine2", paths: ["assets/sounds/engine2.ogg", "assets/sounds/engine2.m4a"], volume: 1, loop: true },
+            { name: "explosion", paths: ["assets/sounds/explosion.ogg", "assets/sounds/explosion.m4a"], volume: 1, loop: false },
+            { name: "bonus", paths: ["assets/sounds/bonus.ogg", "assets/sounds/bonus.m4a"], volume: .5, loop: false },
+            { name: "colliderSound", paths: ["assets/sounds/colliderSound.ogg", "assets/sounds/colliderSound.m4a"], volume: 1, loop: false },
+            { name: "yeahh", paths: ["assets/sounds/yeahh.ogg", "assets/sounds/yeahh.m4a"], volume: 1, loop: false },
+            { name: "final", paths: ["assets/sounds/final.ogg", "assets/sounds/final.m4a"], volume: .5, loop: true },
+            { name: "attackSequence", paths: ["assets/sounds/attackSequence.ogg", "assets/sounds/attackSequence.m4a"], volume: .5, loop: false },
+            { name: "stayFocused", paths: ["assets/sounds/stayFocused.ogg", "assets/sounds/stayFocused.m4a"], volume: .5, loop: false },
+            { name: "watchEnemy", paths: ["assets/sounds/watchEnemy.ogg", "assets/sounds/watchEnemy.m4a"], volume: .5, loop: false },
+            { name: "TheForce", paths: ["assets/sounds/TheForce.ogg", "assets/sounds/TheForce.m4a"], volume: .5, loop: false },
+            { name: "stayOnTarget", paths: ["assets/sounds/stayOnTarget.ogg", "assets/sounds/stayOnTarget.m4a"], volume: .5, loop: false },
+            { name: "tieFly", paths: ["assets/sounds/tieFly.ogg", "assets/sounds/tieFly.m4a"], volume: .5, loop: false },
+            { name: "useTheForce", paths: ["assets/sounds/useTheForce.ogg", "assets/sounds/useTheForce.m4a"], volume: .5, loop: false }
 
-            { name: "attackSequence", paths: ["assets/sounds/attackSequence.ogg", "assets/sounds/attackSequence.mp3"] },
-            { name: "crowded", paths: ["assets/sounds/crowded.ogg", "assets/sounds/crowded.mp3"] },
-            { name: "engaging", paths: ["assets/sounds/engaging.ogg", "assets/sounds/engaging.mp3"] },
-            { name: "heavyFire", paths: ["assets/sounds/heavyFire.ogg", "assets/sounds/heavyFire.mp3"] },
-            { name: "impressive", paths: ["assets/sounds/impressive.ogg", "assets/sounds/impressive.mp3"] },
-            { name: "lockOn", paths: ["assets/sounds/lockOn.ogg", "assets/sounds/lockOn.mp3"] },
-            { name: "stayFocused", paths: ["assets/sounds/stayFocused.ogg", "assets/sounds/stayFocused.mp3"] },
-            { name: "yeahh", paths: ["assets/sounds/yeahh.ogg", "assets/sounds/yeahh.mp3"] },
-            { name: "engine2", paths: ["assets/sounds/engine2.ogg", "assets/sounds/engine2.mp3"] },
-            { name: "useTheForce", paths: ["assets/sounds/useTheForce.ogg", "assets/sounds/useTheForce.mp3"] }
+            /* 
+            { name: "alarm", paths: ["assets/sounds/alarm.ogg", "assets/sounds/alarm.m4a"] },
+            { name: "engine", paths: ["assets/sounds/engine.ogg", "assets/sounds/engine.m4a"] },
+            { name: "missionFailure", paths: ["assets/sounds/missionFailure.ogg", "assets/sounds/missionFailure.m4a"] },
+            { name: "crowded", paths: ["assets/sounds/crowded.ogg", "assets/sounds/crowded.m4a"] },
+            { name: "engaging", paths: ["assets/sounds/engaging.ogg", "assets/sounds/engaging.m4a"] },
+            { name: "heavyFire", paths: ["assets/sounds/heavyFire.ogg", "assets/sounds/heavyFire.m4a"] },
+            { name: "impressive", paths: ["assets/sounds/impressive.ogg", "assets/sounds/impressive.m4a"] },
+            { name: "lockOn", paths: ["assets/sounds/lockOn.ogg", "assets/sounds/lockOn.m4a"] },
+            */
 
-            
+
+
+
+
 
 
 
@@ -452,10 +530,10 @@ var gameData = {
 
 
 
-var _guserid:string;
-var _gname:string;
-var _gfriends:string;
-var sharing:boolean=false;
+var _guserid: string;
+var _gname: string;
+var _gfriends: string;
+var sharing: boolean = false;
 
 function checkLoginStatus(response) {
 
@@ -523,11 +601,11 @@ function anonymous() {
 
     $.ajax({
         url: "http://www.zero89.it/api/jsonp/scores/core.aspx",
-        data: { who: "save", game: "xmas2016", name: "anonymous ("+  k2016Game.getLevelLabel() +" level)",callback:"gamescores", score: k2016Game.getScore() },
+        data: { who: "save", game: "xmas2016", name: "anonymous (" + k2016Game.getLevelLabel() + " level)", callback: "gamescores", score: k2016Game.getScore() },
         dataType: "jsonp",
         jsonpCallback: "gamescores",
         context: document.body
-    }).done(function (data) {});
+    }).done(function (data) { });
 
 }
 
@@ -540,9 +618,9 @@ function share() {
 
     $.ajax({
         url: "http://www.zero89.it/api/jsonp/scores/core.aspx",
-        data: { who: "save", game: "xmas2016", name: _gname + " ("+  k2016Game.getLevelLabel() +" level)",callback:"gamescores", score: k2016Game.getScore()  },
+        data: { who: "save", game: "xmas2016", name: _gname + " (" + k2016Game.getLevelLabel() + " level)", callback: "gamescores", score: k2016Game.getScore() },
         dataType: "jsonp",
-         jsonpCallback: "gamescores",
+        jsonpCallback: "gamescores",
         context: document.body
     }).done(function (data) {
 
@@ -551,12 +629,12 @@ function share() {
             method: 'feed',
             name: 'XMAS RUN 2k16',
             link: 'http://xmas2016.zero89.it/halloffame.html',
-            description: 'You score ' + k2016Game.getScore() + " points @ "+ k2016Game.getLevelLabel() +" level!",
+            description: 'You score ' + k2016Game.getScore() + " points @ " + k2016Game.getLevelLabel() + " level!",
             caption: "May the FORCE be with you!",
             picture: 'http://xmas2016.zero89.it/assets/images/game/cover.png'
-        }, function (response) { 
+        }, function (response) {
 
-            sharing=false;
+            sharing = false;
 
         });
 

@@ -54,8 +54,7 @@ module k2016Game {
 
                 private isStarted = false;
 
-                private gameTheme: Phaser.Sound;
-                public engineLoop: Phaser.Sound;
+                private audioEffect: Phaser.Sound;
 
 
                 private gameTimer: Phaser.Timer;
@@ -78,6 +77,7 @@ module k2016Game {
 
                 create() {
 
+                        this.game.time.advancedTiming = true;
                         this.cheat = false;
                         this.playerStart = null; //number value or null
                         this.torpedo = 0;
@@ -204,14 +204,9 @@ module k2016Game {
 
                         this.setupPath();
 
+                        playSound(gameSound.ingame);
+                        playSound(gameSound.engine);
 
-                        this.gameTheme = this.game.add.audio('game', 1, true);
-                        this.gameTheme.allowMultiple = true;
-                        this.gameTheme.play();
-
-                        this.engineLoop = this.game.add.audio('engine2', 1, true);
-                        this.engineLoop.allowMultiple = true;
-                        this.engineLoop.volume = 0.1;
 
 
                 }
@@ -224,11 +219,10 @@ module k2016Game {
                         this.game.camera.fade(0xffffff, 3000);
                         this.game.camera.onFadeComplete.add(function () {
 
-                                this.gameTheme.stop();
-                                this.gameTheme.destroy();
+                                stopSound(gameSound.ingame);
+                                stopSound(gameSound.engine);
 
-                                this.engineLoop.stop();
-                                this.engineLoop.destroy();
+
 
                                 this.game.add.sprite(0, 0, this.game.cache.getBitmapData("layerWhite"));
                                 this.game.world.setBounds(0, 0, 1024, 600);
@@ -314,14 +308,11 @@ module k2016Game {
                 setTopX(index: number): number {
                         var obstaclesX: number;
                         var plus = 0;
-                        if (index >= 25 && index <= 50) { plus = 15000; index = index % 25; }
+                        if (index >= 26 && index <= 50) { plus = 15000; index = index % 26; }
                         if (index >= 51) { plus = 30000; index = index % 51; }
 
-                        // obstaclesX = 5000 + plus + (400 * index - (index * 3));
 
                         obstaclesX = 5000 + plus + (400 * index);
-
-                        //console.log(index, obstaclesX);
                         return obstaclesX
 
                 }
@@ -362,7 +353,7 @@ module k2016Game {
                 startGame() {
 
 
-                        this.engineLoop.play();
+                        // this.engineLoop.play();
 
                         this.tweenScroll(this);
                         this.player.body.allowGravity = true;
@@ -387,6 +378,7 @@ module k2016Game {
                                 this.game.debug.cameraInfo(this.game.camera, 32, 32);
                                 this.game.debug.bodyInfo(this.player, 32, 132);
                                 this.game.debug.body(this.core);
+                                this.game.debug.text(this.game.time.fps + "", 2, 14, "#00ff00");
                         }
 
 
@@ -397,8 +389,7 @@ module k2016Game {
 
                 playerKilled() {
 
-                        this.engineLoop.stop();
-                        this.engineLoop.destroy();
+                        stopSound(gameSound.engine);
                         this.isStarted = false;
                         this.tweenScroll(this, null, { back1: 0, back2: 0, back3: 0 });
                         this.camera.flash(0xffffff, 200);
@@ -411,13 +402,7 @@ module k2016Game {
 
                 gameOver() {
 
-                        this.gameTheme.stop();
-                        this.gameTheme.destroy();
-
-                        this.engineLoop.stop();
-                        this.engineLoop.destroy();
-
-
+                        stopSound(gameSound.ingame);
                         setScore(this.realScore);
                         goState("Gameover", this.game);
 
@@ -543,10 +528,38 @@ module k2016Game {
 
                 setSound(_sound: string): void {
 
-                        var audio = this.game.add.audio(_sound, .5, false);
-                        audio.allowMultiple = true;
-                        audio.play();
-                        //  audio.onStop.add(function(){ this.destroy(); },audio);
+                        //console.log(_sound);
+
+                        switch (_sound) {
+
+                                case "attackSequence":
+                                        playSound(gameSound.attacksequence);
+                                        break;
+
+                                case "stayFocused":
+                                        playSound(gameSound.stayfocused);
+                                        break;
+
+                                case "watchEnemy":
+                                        playSound(gameSound.watchenemy);
+                                        break;
+
+                                case "TheForce":
+                                        playSound(gameSound.theforce);
+                                        break;
+
+                                case "stayOnTarget":
+                                        playSound(gameSound.stayontarget);
+                                        break;
+
+                                case "useTheForce":
+                                        playSound(gameSound.usetheforce);
+                                        break;
+
+                        }
+
+
+
                 }
 
 

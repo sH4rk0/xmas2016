@@ -52,12 +52,12 @@ var k2016Game;
             /*	for (var i=0; i<gameData.assets.bitmapfont.length; i++){
             this.game.load.bitmapFont(gameData.assets.bitmapfont[i].name, gameData.assets.bitmapfont[i].imgpath, gameData.assets.bitmapfont[i].xmlpath);
             }*/
-            // SOUNDS		
+            // SOUNDS
+            var _sound;
             for (var i = 0; i < gameData.assets.sounds.length; i++) {
                 this.game.load.audio(gameData.assets.sounds[i].name, gameData.assets.sounds[i].paths);
             }
-            this.game.load.script('webfont', '/js/libs/webfonts.js');
-            //this.setPosition();
+            this.game.load.script('webfont', 'js/libs/webfonts.js');
         };
         Preloader.prototype.fileComplete = function (progress, cacheKey, success, totalLoaded, totalFiles) { this.loadingPerc.text = progress + "%"; };
         return Preloader;
@@ -176,6 +176,7 @@ var k2016Game;
         Menu.prototype.preload = function () {
         };
         Menu.prototype.create = function () {
+            k2016Game.setUpGame(this.game);
             k2016Game.setScore(0);
             this.game.world.setBounds(0, 0, 1024, 600);
             this.game.camera.x = 0;
@@ -238,6 +239,12 @@ var k2016Game;
             this.gameSubTitle.anchor.set(.5);
             this.gameSubTitle.alpha = 0;
             this.gameSubTitle.font = 'Press Start 2P';
+            //tap to skip
+            _style = { font: 'normal 14px', fill: '#ffffff', stroke: '#ff0000', strokeThickness: 0 };
+            this.introSkip = this.game.add.text(820, 580, "TAP TO SKIP", _style);
+            this.introSkip.anchor.set(.5);
+            this.introSkip.alpha = 1;
+            this.introSkip.font = 'Press Start 2P';
             //fishfries
             this.fishfries = this.game.add.image(800, -140, "fishfries");
             this.fishfries.anchor.set(.5);
@@ -253,7 +260,7 @@ var k2016Game;
             this.btnGreen.addChild(_spriteText);
             this.btnGreen.inputEnabled = true;
             this.btnGreen.events.onInputDown.add(function () {
-                this.mainTheme.stop();
+                k2016Game.stopSound(k2016Game.gameSound.menu);
                 k2016Game.goState("GameWing", this.game);
             }, this);
             //btn Blue
@@ -301,7 +308,7 @@ var k2016Game;
                     _level = 0;
                 k2016Game.setLevel(_level);
                 this.levelText.text = k2016Game.getLevelLabel();
-                this.levelAudio.play();
+                k2016Game.playSound(k2016Game.gameSound.tieShot);
             }, this);
             this.buttonsGroup.add(this.btnBlue);
             this.buttonsGroup.add(this.btnRed);
@@ -348,11 +355,7 @@ var k2016Game;
             this.back_emitter.start(false, 14000);
             this.mid_emitter.start(false, 12000);
             this.front_emitter.start(false, 6000);
-            this.introTheme = this.game.add.audio('intro', 1, false);
-            this.introTheme.allowMultiple = true;
-            this.introTheme.play();
-            this.mainTheme = this.game.add.audio('starwars', 1, true);
-            this.mainTheme.allowMultiple = true;
+            k2016Game.playSound(k2016Game.gameSound.intro);
             _style = { font: 'normal 40px', fill: '#ffffff', stroke: '#000000', strokeThickness: 8, wordWrap: true, wordWrapWidth: 1000 };
             this.textwriter = this.game.add.text(this.game.world.centerX, this.game.world.centerY, "", _style);
             this.textwriter.anchor.set(0, 0.5);
@@ -391,10 +394,7 @@ var k2016Game;
             this.creditGroup.alpha = 0;
             //credits screen end
             //------------------------------------------
-            this.openLayerAudio = this.game.add.audio('lightSaber', 1, false);
-            this.openLayerAudio.allowMultiple = true;
-            this.levelAudio = this.game.add.audio('tieShot', 1, false);
-            this.levelAudio.allowMultiple = true;
+            this.game.input.onDown.addOnce(this.openCurtain, this);
             //setFirstTime(false);
             //this.openCurtain()
             if (k2016Game.getFirstTime()) {
@@ -405,7 +405,7 @@ var k2016Game;
             }
         };
         Menu.prototype.openCredits = function () {
-            this.game.time.events.add(300, function () { this.openLayerAudio.play(); }, this);
+            this.game.time.events.add(300, function () { k2016Game.playSound(k2016Game.gameSound.lightsaber); }, this);
             this.buttonsGroup.ignoreChildInput = true;
             var tween = this.game.add.tween(this.creditGroup).to({ x: 0, alpha: 1 }, 500, Phaser.Easing.Cubic.Out, true, 600);
             tween.onComplete.add(function () {
@@ -413,7 +413,7 @@ var k2016Game;
             }, this);
         };
         Menu.prototype.closeCredits = function () {
-            this.game.time.events.add(300, function () { this.openLayerAudio.play(); }, this);
+            this.game.time.events.add(300, function () { k2016Game.playSound(k2016Game.gameSound.lightsaber); }, this);
             this.creditGroup.ignoreChildInput = true;
             var tween = this.game.add.tween(this.creditGroup).to({ x: -1024, alpha: 0 }, 500, Phaser.Easing.Cubic.Out, true, 600);
             tween.onComplete.add(function () {
@@ -421,7 +421,7 @@ var k2016Game;
             }, this);
         };
         Menu.prototype.openHow2play = function () {
-            this.game.time.events.add(300, function () { this.openLayerAudio.play(); }, this);
+            this.game.time.events.add(300, function () { k2016Game.playSound(k2016Game.gameSound.lightsaber); }, this);
             this.buttonsGroup.ignoreChildInput = true;
             var tween = this.game.add.tween(this.how2playGroup).to({ x: 0, alpha: 1 }, 500, Phaser.Easing.Cubic.Out, true, 600);
             tween.onComplete.add(function () {
@@ -429,7 +429,7 @@ var k2016Game;
             }, this);
         };
         Menu.prototype.closeHow2play = function () {
-            this.game.time.events.add(300, function () { this.openLayerAudio.play(); }, this);
+            this.game.time.events.add(300, function () { k2016Game.playSound(k2016Game.gameSound.lightsaber); }, this);
             this.how2playGroup.ignoreChildInput = true;
             var tween = this.game.add.tween(this.how2playGroup).to({ x: -1024, alpha: 0 }, 500, Phaser.Easing.Cubic.Out, true, 600);
             tween.onComplete.add(function () {
@@ -437,10 +437,13 @@ var k2016Game;
             }, this);
         };
         Menu.prototype.openCurtain = function () {
-            this.introTheme.stop();
-            this.mainTheme.play();
-            // this.mainTheme.loopFull(1);
-            // this.mainTheme.onLoop.add(this.playLevelMusic,this)
+            this.introSkip.alpha = 0;
+            k2016Game.setFirstTime(false);
+            this.textwriter.text = "";
+            this.textwriter.alpha = 0;
+            this.textArr = [];
+            k2016Game.stopSound(k2016Game.gameSound.intro);
+            k2016Game.playSound(k2016Game.gameSound.menu);
             this.game.add.tween(this.curtainBackLeft).to({ x: this.curtainBackLeft.x - this.curtainBackLeft.width }, 1600, Phaser.Easing.Cubic.Out, true);
             this.game.add.tween(this.curtainBackRight).to({ x: this.curtainBackRight.x + this.curtainBackRight.width }, 1600, Phaser.Easing.Cubic.Out, true);
             this.game.add.tween(this.curtainLeft).to({ x: this.curtainLeft.x - 80 }, 2000, Phaser.Easing.Cubic.Out, true);
@@ -481,6 +484,8 @@ var k2016Game;
             }
         };
         Menu.prototype.textWriter = function (index) {
+            if (!k2016Game.getFirstTime)
+                return;
             var _this = this;
             var texts = [
                 { text: "FROM A THEATER FAR, FAR AWAY...", x: 30, size: "normal 30px" },
@@ -528,13 +533,9 @@ var k2016Game;
                 if (scoreValue.callback != undefined) {
                     var scoreTween = scoreValue.game.add.tween(scoreValue.menu.textwriter).to({ alpha: 0 }, 1000, Phaser.Easing.Quadratic.Out, true, 1000);
                     scoreTween.onComplete.add(function () {
-                        //console.log(scoreValue.callback);
                         if (scoreValue.callback == 5) {
-                            k2016Game.setFirstTime(false);
-                            scoreValue.menu.textwriter.text = "";
-                            scoreValue.menu.textwriter.alpha = 0;
-                            scoreValue.menu.textArr = [];
-                            scoreValue.menu.openCurtain();
+                            if (k2016Game.getFirstTime())
+                                scoreValue.menu.openCurtain();
                         }
                         else {
                             scoreValue.menu.textWriter(scoreValue.callback);
@@ -565,19 +566,9 @@ var k2016Game;
             particle.body.velocity.x = max - Math.floor(Math.random() * 30);
         };
         Menu.prototype.stopEmitters = function () {
-            //return;
             this.back_emitter.destroy();
             this.front_emitter.destroy();
             this.mid_emitter.destroy();
-            /*return;
-                this.back_emitter.on=false;
-                this.front_emitter.on=false;
-                this.mid_emitter.on=false;
-                
-                 this.back_emitter.forEachExists(function(obj){ obj.kill(); }, this);
-                 this.front_emitter.forEachExists(function(obj){ obj.kill(); }, this);
-                 this.mid_emitter.forEachExists(function(obj){ obj.kill(); }, this);
-            */
         };
         return Menu;
     }(Phaser.State));
@@ -793,7 +784,7 @@ var k2016Game;
             this.btnGreen.addChild(_spriteText);
             this.btnGreen.inputEnabled = true;
             this.btnGreen.events.onInputDown.add(function () {
-                this.gameoverTheme.stop();
+                k2016Game.stopSound(k2016Game.gameSound.gameover);
                 k2016Game.goState("GameWing", this.game);
             }, this);
             //btn Blue
@@ -818,12 +809,10 @@ var k2016Game;
             this.btnRed.addChild(_spriteText);
             this.btnRed.inputEnabled = true;
             this.btnRed.events.onInputDown.add(function () {
-                this.gameoverTheme.stop();
+                k2016Game.stopSound(k2016Game.gameSound.gameover);
                 k2016Game.goState("Menu", this.game);
             }, this);
-            this.gameoverTheme = this.game.add.audio('final', 1, true);
-            this.gameoverTheme.allowMultiple = true;
-            this.gameoverTheme.play();
+            k2016Game.playSound(k2016Game.gameSound.gameover);
             _style = { font: 'normal 25px', fill: '#ffffff', stroke: '#000000', strokeThickness: 0 };
             var _text = 'You score ONLY ' + k2016Game.getScore() + ' points!\n' + this.insulti[this.game.rnd.integerInRange(0, this.insulti.length - 1)];
             var _gameOverSpeech = this.game.add.text(210, 390, _text, _style);
@@ -850,6 +839,9 @@ var k2016Game;
     var _playerScore = 0;
     var _firstTime = true;
     var _level = 2;
+    var _game;
+    var _gameSetup = false;
+    var _gameSounds = [];
     function setFirstTime(_val) { _firstTime = _val; }
     k2016Game.setFirstTime = setFirstTime;
     function getFirstTime() { return _firstTime; }
@@ -858,6 +850,65 @@ var k2016Game;
     k2016Game.getScore = getScore;
     function setScore(val) { _playerScore = val; }
     k2016Game.setScore = setScore;
+    function setGame(game) { _game = game; }
+    k2016Game.setGame = setGame;
+    function getGame() { return _game; }
+    k2016Game.getGame = getGame;
+    function getSound(_sound) {
+        return _gameSounds[_sound];
+    }
+    k2016Game.getSound = getSound;
+    function playSound(_sound) {
+        _gameSounds[_sound].play();
+    }
+    k2016Game.playSound = playSound;
+    function stopSound(_sound) {
+        _gameSounds[_sound].stop();
+    }
+    k2016Game.stopSound = stopSound;
+    function pauseSound(_sound) {
+        _gameSounds[_sound].stop();
+    }
+    k2016Game.pauseSound = pauseSound;
+    function setSoundVolume(_sound, _volume) {
+        _gameSounds[_sound].volume = _volume;
+    }
+    k2016Game.setSoundVolume = setSoundVolume;
+    (function (gameSound) {
+        gameSound[gameSound["intro"] = 0] = "intro";
+        gameSound[gameSound["menu"] = 1] = "menu";
+        gameSound[gameSound["lightsaber"] = 2] = "lightsaber";
+        gameSound[gameSound["tieShot"] = 3] = "tieShot";
+        gameSound[gameSound["ingame"] = 4] = "ingame";
+        gameSound[gameSound["engine"] = 5] = "engine";
+        gameSound[gameSound["explosion"] = 6] = "explosion";
+        gameSound[gameSound["bonus"] = 7] = "bonus";
+        gameSound[gameSound["colliderSound"] = 8] = "colliderSound";
+        gameSound[gameSound["yeahh"] = 9] = "yeahh";
+        gameSound[gameSound["gameover"] = 10] = "gameover";
+        gameSound[gameSound["attacksequence"] = 11] = "attacksequence";
+        gameSound[gameSound["stayfocused"] = 12] = "stayfocused";
+        gameSound[gameSound["watchenemy"] = 13] = "watchenemy";
+        gameSound[gameSound["theforce"] = 14] = "theforce";
+        gameSound[gameSound["stayontarget"] = 15] = "stayontarget";
+        gameSound[gameSound["tiefly"] = 16] = "tiefly";
+        gameSound[gameSound["usetheforce"] = 17] = "usetheforce";
+    })(k2016Game.gameSound || (k2016Game.gameSound = {}));
+    var gameSound = k2016Game.gameSound;
+    function setUpGame(_game) {
+        if (!_gameSetup) {
+            //console.log("gameSetup");
+            setGame(_game);
+            var _sound;
+            for (var i = 0; i < gameData.assets.sounds.length; i++) {
+                _sound = _game.add.audio(gameData.assets.sounds[i].name, gameData.assets.sounds[i].volume, gameData.assets.sounds[i].loop);
+                _sound.allowMultiple = true;
+                _gameSounds.push(_sound);
+            }
+            _gameSetup = true;
+        }
+    }
+    k2016Game.setUpGame = setUpGame;
     function isMobile(game) {
         if (game.device.touch && (game.device.iOS || game.device.android || game.device.windowsPhone)) {
             return true;
@@ -944,7 +995,7 @@ var k2016Game;
                 }
             }
             catch (err) { }
-            this.game = new Phaser.Game(width, height, Phaser.AUTO, "", null, false, true);
+            this.game = new Phaser.Game(width, height, Phaser.CANVAS, "", null, false, true);
             this.game.state.add("Boot", k2016Game.Boot, false);
             this.game.state.add("Preloader", k2016Game.Preloader, false);
             this.game.state.add("Menu", k2016Game.Menu, false);
@@ -1042,33 +1093,24 @@ var gameData = {
             { name: "kyber", path: "assets/images/game/kyber.png" }
         ],
         sounds: [
-            { name: "intro", paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.mp3"] },
-            { name: "game", paths: ["assets/sounds/gameTheme.ogg", "assets/sounds/gameTheme.mp3"] },
-            { name: "final", paths: ["assets/sounds/final.ogg", "assets/sounds/final.mp3"] },
-            { name: "main", paths: ["assets/sounds/main.ogg", "assets/sounds/main.mp3"] },
-            { name: "starwars", paths: ["assets/sounds/starwars.ogg", "assets/sounds/starwars.mp3"] },
-            { name: "explosion", paths: ["assets/sounds/explosion.ogg", "assets/sounds/explosion.mp3"] },
-            { name: "bonus", paths: ["assets/sounds/bonus.ogg", "assets/sounds/bonus.mp3"] },
-            // { name: "alarm", paths: ["assets/sounds/alarm.ogg", "assets/sounds/alarm.mp3"] },
-            { name: "engine", paths: ["assets/sounds/engine.ogg", "assets/sounds/engine.mp3"] },
-            { name: "tieShot", paths: ["assets/sounds/tieShot.ogg", "assets/sounds/tieShot.mp3"] },
-            { name: "tieFly", paths: ["assets/sounds/tieFly.ogg", "assets/sounds/tieFly.mp3"] },
-            { name: "watchEnemy", paths: ["assets/sounds/watchEnemy.ogg", "assets/sounds/watchEnemy.mp3"] },
-            { name: "TheForce", paths: ["assets/sounds/TheForce.ogg", "assets/sounds/TheForce.mp3"] },
-            { name: "stayOnTarget", paths: ["assets/sounds/stayOnTarget.ogg", "assets/sounds/stayOnTarget.mp3"] },
-            { name: "missionFailure", paths: ["assets/sounds/missionFailure.ogg", "assets/sounds/missionFailure.mp3"] },
-            { name: "lightSaber", paths: ["assets/sounds/lightSaber.ogg", "assets/sounds/lightSaber.mp3"] },
-            { name: "colliderSound", paths: ["assets/sounds/colliderSound.ogg", "assets/sounds/colliderSound.mp3"] },
-            { name: "attackSequence", paths: ["assets/sounds/attackSequence.ogg", "assets/sounds/attackSequence.mp3"] },
-            { name: "crowded", paths: ["assets/sounds/crowded.ogg", "assets/sounds/crowded.mp3"] },
-            { name: "engaging", paths: ["assets/sounds/engaging.ogg", "assets/sounds/engaging.mp3"] },
-            { name: "heavyFire", paths: ["assets/sounds/heavyFire.ogg", "assets/sounds/heavyFire.mp3"] },
-            { name: "impressive", paths: ["assets/sounds/impressive.ogg", "assets/sounds/impressive.mp3"] },
-            { name: "lockOn", paths: ["assets/sounds/lockOn.ogg", "assets/sounds/lockOn.mp3"] },
-            { name: "stayFocused", paths: ["assets/sounds/stayFocused.ogg", "assets/sounds/stayFocused.mp3"] },
-            { name: "yeahh", paths: ["assets/sounds/yeahh.ogg", "assets/sounds/yeahh.mp3"] },
-            { name: "engine2", paths: ["assets/sounds/engine2.ogg", "assets/sounds/engine2.mp3"] },
-            { name: "useTheForce", paths: ["assets/sounds/useTheForce.ogg", "assets/sounds/useTheForce.mp3"] }
+            { name: "intro", paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.m4a"], volume: 1, loop: false },
+            { name: "starwars", paths: ["assets/sounds/starwars.ogg", "assets/sounds/starwars.m4a"], volume: 1, loop: true },
+            { name: "lightSaber", paths: ["assets/sounds/lightSaber.ogg", "assets/sounds/lightSaber.m4a"], volume: 1, loop: false },
+            { name: "tieShot", paths: ["assets/sounds/tieShot.ogg", "assets/sounds/tieShot.m4a"], volume: .5, loop: false },
+            { name: "game", paths: ["assets/sounds/gameTheme.ogg", "assets/sounds/gameTheme.m4a"], volume: 1, loop: true },
+            { name: "engine2", paths: ["assets/sounds/engine2.ogg", "assets/sounds/engine2.m4a"], volume: 1, loop: true },
+            { name: "explosion", paths: ["assets/sounds/explosion.ogg", "assets/sounds/explosion.m4a"], volume: 1, loop: false },
+            { name: "bonus", paths: ["assets/sounds/bonus.ogg", "assets/sounds/bonus.m4a"], volume: .5, loop: false },
+            { name: "colliderSound", paths: ["assets/sounds/colliderSound.ogg", "assets/sounds/colliderSound.m4a"], volume: 1, loop: false },
+            { name: "yeahh", paths: ["assets/sounds/yeahh.ogg", "assets/sounds/yeahh.m4a"], volume: 1, loop: false },
+            { name: "final", paths: ["assets/sounds/final.ogg", "assets/sounds/final.m4a"], volume: .5, loop: true },
+            { name: "attackSequence", paths: ["assets/sounds/attackSequence.ogg", "assets/sounds/attackSequence.m4a"], volume: .5, loop: false },
+            { name: "stayFocused", paths: ["assets/sounds/stayFocused.ogg", "assets/sounds/stayFocused.m4a"], volume: .5, loop: false },
+            { name: "watchEnemy", paths: ["assets/sounds/watchEnemy.ogg", "assets/sounds/watchEnemy.m4a"], volume: .5, loop: false },
+            { name: "TheForce", paths: ["assets/sounds/TheForce.ogg", "assets/sounds/TheForce.m4a"], volume: .5, loop: false },
+            { name: "stayOnTarget", paths: ["assets/sounds/stayOnTarget.ogg", "assets/sounds/stayOnTarget.m4a"], volume: .5, loop: false },
+            { name: "tieFly", paths: ["assets/sounds/tieFly.ogg", "assets/sounds/tieFly.m4a"], volume: .5, loop: false },
+            { name: "useTheForce", paths: ["assets/sounds/useTheForce.ogg", "assets/sounds/useTheForce.m4a"], volume: .5, loop: false }
         ],
         bitmapfont: [
             { name: "carrier_command", imgpath: "assets/fonts/carrier_command.png", xmlpath: "assets/fonts/carrier_command.xml" }
@@ -1346,11 +1388,7 @@ var k2016Game;
             }
         };
         Bonus.prototype.dissolve = function () {
-            this.explosionAudio = this.game.add.audio('bonus', 1, false);
-            this.explosionAudio.allowMultiple = true;
-            this.explosionAudio.volume = .5;
-            this.explosionAudio.play();
-            // this.explosionAudio.onStop.add(function(){ this.destroy(); },this.explosionAudio);
+            k2016Game.playSound(k2016Game.gameSound.bonus);
             var dissolve = this.game.add.sprite(this.x, this.y, "bonusEffect");
             dissolve.anchor.set(.5);
             dissolve.scale.set(1);
@@ -1393,9 +1431,7 @@ var k2016Game;
             _super.call(this, game, x, y, name);
             this.game = game;
             this.gameState = gameState;
-            this.explosionAudio = this.game.add.audio('explosion', 1, false);
-            this.explosionAudio.allowMultiple = true;
-            this.explosionAudio.play();
+            k2016Game.playSound(k2016Game.gameSound.explosion);
             var anim = this.animations.add('boom', null, 20, false);
             this.anchor.set(.5);
             anim.onComplete.add(function () { this.destroy(); }, this);
@@ -1500,15 +1536,12 @@ var k2016Game;
             this.body.allowGravity = false;
             this.anchor.set(.5, 1);
             game.add.existing(this);
-            this.bonusAudio = this.game.add.audio('colliderSound', .5, false);
-            this.bonusAudio.allowMultiple = true;
         }
         Obstacle.prototype.update = function () {
             if (this.x < this.gameState.player.x && !this.scrolled && this.who == "top") {
                 this.scrolled = true;
                 this.gameState.tweenScore(50);
-                this.bonusAudio.play();
-                //this.bonusAudio.onStop.add(function(){ this.destroy(); },this.bonusAudio);
+                k2016Game.playSound(k2016Game.gameSound.colliderSound);
                 var score = "50";
                 var _style = { font: 'normal 30px', fill: '#ffffff', stroke: '#1d5779', strokeThickness: 10 };
                 var scoreText = this.game.add.text(this.gameState.player.x, this.gameState.player.y, score, _style);
@@ -1775,8 +1808,6 @@ var k2016Game;
             this.events.onKilled.add(this.onKilled, this);
             this.body.setSize(160, 60, 50, 50);
             this.game.add.existing(this);
-            this.yeahAudio = this.game.add.audio('yeahh', .5, false);
-            this.yeahAudio.allowMultiple = true;
         }
         PlayerWing.prototype.update = function () {
             if (this.angle < 40 && this.alive) {
@@ -1789,10 +1820,11 @@ var k2016Game;
         PlayerWing.prototype.flap = function () {
             if (!this.stopFlap) {
                 if (!!this.alive) {
-                    this.gameState.engineLoop.volume = .4;
+                    k2016Game.setSoundVolume(k2016Game.gameSound.engine, .4);
+                    k2016Game.getSound(k2016Game.gameSound.engine);
                     this.body.velocity.y = -200;
                     this.game.add.tween(this).to({ angle: -40 }, 100).start();
-                    this.game.add.tween(this.gameState.engineLoop).to({ volume: .1 }, 500).start();
+                    this.game.add.tween(k2016Game.getSound(k2016Game.gameSound.engine)).to({ volume: .1 }, 500).start();
                 }
             }
             if (this.ableToFire) {
@@ -1808,7 +1840,7 @@ var k2016Game;
         PlayerWing.prototype.yeahh = function () {
             if (!this.yeahhState && this.alive) {
                 this.yeahhState = true;
-                this.yeahAudio.play();
+                k2016Game.playSound(k2016Game.gameSound.yeahh);
                 this.gameState.tweenScore(750);
                 var score = "750";
                 var _style = { font: 'normal 30px', fill: '#ffffff', stroke: '#1d5779', strokeThickness: 10 };
@@ -1834,7 +1866,6 @@ var k2016Game;
             this.ableToFire = false;
         };
         PlayerWing.prototype.onKilled = function () {
-            this.yeahAudio.destroy();
             this.gameState.playerKilled();
         };
         ;
@@ -1912,9 +1943,6 @@ var k2016Game;
             this.body.allowGravity = false;
             this.shoots = 2;
             this.audioStarted = false;
-            this.tieAudio = this.game.add.audio('tieFly', 1, false);
-            this.tieAudio.allowMultiple = true;
-            this.tieAudio.volume = .5;
             this.scale.set(2);
             this.anchor.set(.5);
             game.add.existing(this);
@@ -1940,7 +1968,7 @@ var k2016Game;
             this.x -= 20;
             if (this.x < (this.game.camera.x + 1024) && !this.audioStarted) {
                 this.audioStarted = true;
-                this.tieAudio.play();
+                k2016Game.playSound(k2016Game.gameSound.tiefly);
             }
             if (this.x < this.game.camera.x - 100) {
                 this.removeEnemy();
@@ -1971,11 +1999,7 @@ var k2016Game;
             this.scale.set(.5);
             this.anchor.set(.5);
             game.add.existing(this);
-            this.laserAudio = this.game.add.audio('tieShot', 1, false);
-            this.laserAudio.allowMultiple = true;
-            this.laserAudio.volume = .5;
-            this.laserAudio.play();
-            //this.laserAudio.onStop.add(function(){ this.destroy(); },this.laserAudio)
+            k2016Game.playSound(k2016Game.gameSound.tieShot);
         }
         TieLaser.prototype.update = function () {
             this.x -= 25;
@@ -2008,10 +2032,7 @@ var k2016Game;
             this.scale.set(.5);
             this.anchor.set(.5);
             game.add.existing(this);
-            this.laserAudio = this.game.add.audio('tieShot', 1, false);
-            this.laserAudio.allowMultiple = true;
-            this.laserAudio.volume = .5;
-            this.laserAudio.play();
+            k2016Game.playSound(k2016Game.gameSound.tieShot);
         }
         Torpedo.prototype.update = function () {
             this.x += 25;
@@ -2105,7 +2126,7 @@ var k2016Game;
             this.btnGreen.addChild(_spriteText);
             this.btnGreen.inputEnabled = true;
             this.btnGreen.events.onInputDown.add(function () {
-                this.gameoverTheme.stop();
+                k2016Game.stopSound(k2016Game.gameSound.gameover);
                 k2016Game.goState("GameWing", this.game);
             }, this);
             //btn Blue
@@ -2130,12 +2151,10 @@ var k2016Game;
             this.btnRed.addChild(_spriteText);
             this.btnRed.inputEnabled = true;
             this.btnRed.events.onInputDown.add(function () {
-                this.gameoverTheme.stop();
+                k2016Game.stopSound(k2016Game.gameSound.gameover);
                 k2016Game.goState("Menu", this.game);
             }, this);
-            this.gameoverTheme = this.game.add.audio('final', 1, true);
-            this.gameoverTheme.allowMultiple = true;
-            this.gameoverTheme.play();
+            k2016Game.playSound(k2016Game.gameSound.gameover);
             _style = { font: 'normal 25px', fill: '#ffffff', stroke: '#000000', strokeThickness: 0 };
             var _text = 'You score is ' + k2016Game.getScore() + ' points!';
             var _gameOverSpeech = this.game.add.text(210, 390, _text, _style);
@@ -2161,6 +2180,7 @@ var k2016Game;
         }
         GameWing.prototype.preload = function () { };
         GameWing.prototype.create = function () {
+            this.game.time.advancedTiming = true;
             this.cheat = false;
             this.playerStart = null; //number value or null
             this.torpedo = 0;
@@ -2260,22 +2280,16 @@ var k2016Game;
             this.trashGroupFront.add(new k2016Game.Trash(this.game, 11, 100, 200, 3, false));
             this.trashGroupFront.add(new k2016Game.Trash(this.game, 12, 700, 200, 3, false));
             this.setupPath();
-            this.gameTheme = this.game.add.audio('game', 1, true);
-            this.gameTheme.allowMultiple = true;
-            this.gameTheme.play();
-            this.engineLoop = this.game.add.audio('engine2', 1, true);
-            this.engineLoop.allowMultiple = true;
-            this.engineLoop.volume = 0.1;
+            k2016Game.playSound(k2016Game.gameSound.ingame);
+            k2016Game.playSound(k2016Game.gameSound.engine);
         };
         GameWing.prototype.win = function () {
             k2016Game.setScore(this.realScore);
             this.player.disableFire();
             this.game.camera.fade(0xffffff, 3000);
             this.game.camera.onFadeComplete.add(function () {
-                this.gameTheme.stop();
-                this.gameTheme.destroy();
-                this.engineLoop.stop();
-                this.engineLoop.destroy();
+                k2016Game.stopSound(k2016Game.gameSound.ingame);
+                k2016Game.stopSound(k2016Game.gameSound.engine);
                 this.game.add.sprite(0, 0, this.game.cache.getBitmapData("layerWhite"));
                 this.game.world.setBounds(0, 0, 1024, 600);
                 this.game.time.events.add(50, function () { k2016Game.goState("Gamewin", this.game); }, this);
@@ -2332,17 +2346,15 @@ var k2016Game;
         GameWing.prototype.setTopX = function (index) {
             var obstaclesX;
             var plus = 0;
-            if (index >= 25 && index <= 50) {
+            if (index >= 26 && index <= 50) {
                 plus = 15000;
-                index = index % 25;
+                index = index % 26;
             }
             if (index >= 51) {
                 plus = 30000;
                 index = index % 51;
             }
-            // obstaclesX = 5000 + plus + (400 * index - (index * 3));
             obstaclesX = 5000 + plus + (400 * index);
-            //console.log(index, obstaclesX);
             return obstaclesX;
         };
         GameWing.prototype.removeTorpedo = function () {
@@ -2361,7 +2373,7 @@ var k2016Game;
             this.enemyGroup.add(new k2016Game.TieAttack(this.game, this, 450));
         };
         GameWing.prototype.startGame = function () {
-            this.engineLoop.play();
+            // this.engineLoop.play();
             this.tweenScroll(this);
             this.player.body.allowGravity = true;
             this.player.play("fly");
@@ -2380,11 +2392,11 @@ var k2016Game;
                 this.game.debug.cameraInfo(this.game.camera, 32, 32);
                 this.game.debug.bodyInfo(this.player, 32, 132);
                 this.game.debug.body(this.core);
+                this.game.debug.text(this.game.time.fps + "", 2, 14, "#00ff00");
             }
         };
         GameWing.prototype.playerKilled = function () {
-            this.engineLoop.stop();
-            this.engineLoop.destroy();
+            k2016Game.stopSound(k2016Game.gameSound.engine);
             this.isStarted = false;
             this.tweenScroll(this, null, { back1: 0, back2: 0, back3: 0 });
             this.camera.flash(0xffffff, 200);
@@ -2392,10 +2404,7 @@ var k2016Game;
             this.game.time.events.add(3000, this.gameOver, this);
         };
         GameWing.prototype.gameOver = function () {
-            this.gameTheme.stop();
-            this.gameTheme.destroy();
-            this.engineLoop.stop();
-            this.engineLoop.destroy();
+            k2016Game.stopSound(k2016Game.gameSound.ingame);
             k2016Game.setScore(this.realScore);
             k2016Game.goState("Gameover", this.game);
         };
@@ -2461,10 +2470,27 @@ var k2016Game;
             }, this);
         };
         GameWing.prototype.setSound = function (_sound) {
-            var audio = this.game.add.audio(_sound, .5, false);
-            audio.allowMultiple = true;
-            audio.play();
-            //  audio.onStop.add(function(){ this.destroy(); },audio);
+            //console.log(_sound);
+            switch (_sound) {
+                case "attackSequence":
+                    k2016Game.playSound(k2016Game.gameSound.attacksequence);
+                    break;
+                case "stayFocused":
+                    k2016Game.playSound(k2016Game.gameSound.stayfocused);
+                    break;
+                case "watchEnemy":
+                    k2016Game.playSound(k2016Game.gameSound.watchenemy);
+                    break;
+                case "TheForce":
+                    k2016Game.playSound(k2016Game.gameSound.theforce);
+                    break;
+                case "stayOnTarget":
+                    k2016Game.playSound(k2016Game.gameSound.stayontarget);
+                    break;
+                case "useTheForce":
+                    k2016Game.playSound(k2016Game.gameSound.usetheforce);
+                    break;
+            }
         };
         GameWing.prototype.setLevel = function (_obj) {
             if (_obj.pVel != undefined && _obj.pVel != null)

@@ -9,14 +9,10 @@ module k2016Game {
 
         game: Phaser.Game;
         gameState: GameWing;
-
         private vel: number;
         private range: any;
 
-         private explosionAudio: Phaser.Sound;
-
-
-
+        
 
         constructor(game: Phaser.Game, gameState: GameWing, range?: any) {
 
@@ -66,12 +62,7 @@ module k2016Game {
 
         dissolve() {
 
-
-            this.explosionAudio = this.game.add.audio('bonus', 1, false);
-            this.explosionAudio.allowMultiple = true;
-            this.explosionAudio.volume=.5;
-            this.explosionAudio.play();
-           // this.explosionAudio.onStop.add(function(){ this.destroy(); },this.explosionAudio);
+            playSound(gameSound.bonus)
 
             var dissolve = this.game.add.sprite(this.x, this.y, "bonusEffect");
             dissolve.anchor.set(.5);

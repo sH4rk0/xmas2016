@@ -26,12 +26,7 @@ module k2016Game {
 
             game.add.existing(this)
 
-            this.laserAudio = this.game.add.audio('tieShot', 1, false);
-            this.laserAudio.allowMultiple = true;
-            this.laserAudio.volume=.5;
-            this.laserAudio.play();
-            //this.laserAudio.onStop.add(function(){ this.destroy(); },this.laserAudio)
-
+            playSound(gameSound.tieShot);
           
 
         }

@@ -77,7 +77,7 @@ module k2016Game {
 
                 create() {
 
-                        this.game.time.advancedTiming = true;
+                       // this.game.time.advancedTiming = true;
                         this.cheat = false;
                         this.playerStart = null; //number value or null
                         this.torpedo = 0;
@@ -378,7 +378,7 @@ module k2016Game {
                                 this.game.debug.cameraInfo(this.game.camera, 32, 32);
                                 this.game.debug.bodyInfo(this.player, 32, 132);
                                 this.game.debug.body(this.core);
-                                this.game.debug.text(this.game.time.fps + "", 2, 14, "#00ff00");
+                               // this.game.debug.text(this.game.time.fps + "", 2, 14, "#00ff00");
                         }
 
 

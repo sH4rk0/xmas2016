@@ -87,7 +87,9 @@ this.game.world.x=0;
             var _gameOverSpeech = this.game.add.text(210, 390, _text, _style);
 		    _gameOverSpeech.font='Press Start 2P';
            
-            anonymous();
+           var _anonymous = getUrlParameter("anonymous") ? true : false;
+            if(!_anonymous){anonymous();}
+           
 
 
     

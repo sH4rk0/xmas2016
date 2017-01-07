@@ -67,6 +67,15 @@ module k2016Game {
 
                 private reactor: Phaser.Sprite;
 
+                private paths: Array<any>;
+
+                private debugFps: boolean;
+                private debugRender: boolean;
+                private debugCheat: boolean;
+                private debugCollide: boolean;
+                private debugObstacles: boolean;
+               
+
                 constructor() {
 
                         super();
@@ -77,17 +86,29 @@ module k2016Game {
 
                 create() {
 
-                       // this.game.time.advancedTiming = true;
-                        this.cheat = false;
+                        this.debugFps = getUrlParameter("fps") ? true : false;
+                        this.debugRender = getUrlParameter("render") ? true : false;
+                        this.debugCheat = getUrlParameter("cheat") ? true : false;
+                        this.debugCollide = getUrlParameter("collide") ? true : false;
+                        this.debugObstacles = getUrlParameter("obstacle") ? true : false;
+                       
+        
+                        if (this.debugFps) { this.game.time.advancedTiming = true; }
+
+                        this.cheat = this.debugCheat;
                         this.playerStart = null; //number value or null
                         this.torpedo = 0;
+
+                        this.paths = [
+                                { pathid: 0, start: 5000, distance: 200, index: 0, max: 24 },
+                                { pathid: 1, start: 20000, distance: 200, index: 24, max: 49 },
+                                { pathid: 2, start: 35000, distance: 200, index: 49, max: 74 }
+                        ];
 
                         setScore(0);
 
                         this.realScore = 0;
                         this.story = getLevelData();
-
-                        // console.log(this.story);
 
                         this.bonusIsActive = false;
                         this.bombIsActive = false;
@@ -102,7 +123,6 @@ module k2016Game {
                         this.game.physics.arcade.gravity.y = 400;
                         this.game.world.setBounds(0, 0, 52000, 600);
                         this.game.camera.x = 0;
-                        //this.game.world.x=0;  
 
                         this.randomBonusSpawnTime = this.game.time.now;
                         this.bonusSpawn = 100;
@@ -122,6 +142,7 @@ module k2016Game {
                         this.colliderGroup = this.game.add.group();
                         this.torpedoGroup = this.game.add.group();
 
+
                         this.tunnel = this.game.add.tileSprite(-100, 0, 1237, 600, 'tunnel');
                         this.tunnel.fixedToCamera = true;
                         this.backgroundGroup.add(this.tunnel);
@@ -138,11 +159,13 @@ module k2016Game {
                         this.game.camera.follow(this.player);
                         this.game.camera.deadzone = new Phaser.Rectangle(0, 0, 100, 600);
 
+
                         this.layer1 = this.game.add.tileSprite(0, -50, 1024, 700, 'layer1');
                         this.layer1.fixedToCamera = true;
                         this.backgroundGroupFront.add(this.layer1);
 
-                        if (isMobile(this.game)) {
+
+                        if (isMobile()) {
                                 this.game.input.onDown.addOnce(this.startGame, this);
                                 this.game.input.onDown.add(this.player.flap, this.player);
 
@@ -185,11 +208,12 @@ module k2016Game {
                         this.colliderBottom.body.allowGravity = false;
                         this.colliderGroup.add(this.colliderBottom);
 
+                        // less trash for mobile
+                        if (!isMobile()) {
+                                this.trashGroup.add(new Trash(this.game, 1, 100, 200, 3, false));
+                                this.trashGroup.add(new Trash(this.game, 2, 400, 200, 3, false));
+                                this.trashGroup.add(new Trash(this.game, 3, 300, 200, 3, false));
 
-                        this.trashGroup.add(new Trash(this.game, 1, 100, 200, 3, false));
-                        this.trashGroup.add(new Trash(this.game, 2, 400, 200, 3, false));
-                        this.trashGroup.add(new Trash(this.game, 3, 300, 200, 3, false));
-                        if (!isMobile(this.game)) {// less trash for mobile
                                 this.trashGroup.add(new Trash(this.game, 4, 200, 200, 3, false));
                                 this.trashGroup.add(new Trash(this.game, 5, 500, 200, 3, false));
                                 this.trashGroup.add(new Trash(this.game, 6, 800, 200, 3, false));
@@ -197,15 +221,18 @@ module k2016Game {
                                 this.trashGroupFront.add(new Trash(this.game, 7, 900, 200, 3, false));
                                 this.trashGroupFront.add(new Trash(this.game, 8, 450, 200, 3, false));
                                 this.trashGroupFront.add(new Trash(this.game, 9, 330, 200, 3, false));
-                        }
-                        this.trashGroupFront.add(new Trash(this.game, 10, 210, 200, 3, false));
-                        this.trashGroupFront.add(new Trash(this.game, 11, 100, 200, 3, false));
-                        this.trashGroupFront.add(new Trash(this.game, 12, 700, 200, 3, false));
 
-                        this.setupPath();
+                                this.trashGroupFront.add(new Trash(this.game, 10, 210, 200, 3, false));
+                                this.trashGroupFront.add(new Trash(this.game, 11, 100, 200, 3, false));
+                                this.trashGroupFront.add(new Trash(this.game, 12, 700, 200, 3, false));
+                        }
+
+                        this.setupPath(0);
 
                         playSound(gameSound.ingame);
+                        setSoundVolume(gameSound.engine, 0.5);
                         playSound(gameSound.engine);
+
 
 
 
@@ -221,8 +248,6 @@ module k2016Game {
 
                                 stopSound(gameSound.ingame);
                                 stopSound(gameSound.engine);
-
-
 
                                 this.game.add.sprite(0, 0, this.game.cache.getBitmapData("layerWhite"));
                                 this.game.world.setBounds(0, 0, 1024, 600);
@@ -255,80 +280,39 @@ module k2016Game {
 
 
 
-                setupPath() {
+                setupPath(index: number) {
 
+                        if (index > this.paths.length - 1) { return; }
+                        this.createObstacles(this.paths[index].pathid, this.paths[index].start, this.paths[index].distance, this.paths[index].index, this.paths[index].max);
 
-                        this.reactor = this.game.add.sprite(48800, 0, "reactor");
-                        this.reactor.animations.add('light', [0, 1], 12, true).play();
-
-                        this.core = this.game.add.sprite(48950, this.game.world.centerY - 10, "kyber");
-                        this.game.add.tween(this.core).to({ y: this.core.y + 20 }, 2000, Phaser.Easing.Sinusoidal.InOut, true, 0, -1, true);
-
-                        this.core.anchor.set(0.5);
-                        this.game.physics.arcade.enableBody(this.core);
-                        this.core.body.allowGravity = false;
-                        this.core.body.collideWorldBounds = true;
-
-                        this.enemyGroup.add(this.reactor);
-                        this.enemyGroup.add(this.core);
-
-
-                        var lastY: number = 200;
-                        var start: number;
-                        var end: number;
-                        var _x: number;
-                        var _y: number;
-                        var _obstacleLvl: number = getObstacleLevel();
-                        for (var o = 0; o <= 75; o++) {
-
-                                _x = this.setTopX(o);
-
-                                //_y= 800 + lastY;
-                                _y = Math.ceil((800 - (o * _obstacleLvl)) + lastY);
-                                // _y= 600 + (200 - (o * _obstacleLvl)) + lastY;
-
-                                //console.log(o, Math.ceil((_y-lastY)-600));
-
-                                this.obstacleGroup.add(new Obstacle(this.game, this, "top", _x, lastY));
-                                this.obstacleGroup.add(new Obstacle(this.game, this, "bottom", _x, _y));
-
-                                start = (lastY - 100);
-                                end = (lastY + 100);
-
-                                if (start < 100) { start = 100; end = 200; }
-                                else if (end > 400) { start = 300; end = 400; }
-
-                                lastY = this.game.rnd.integerInRange(start, end)
-
-
-                        }
 
                 }
 
-                setTopX(index: number): number {
-                        var obstaclesX: number;
-                        var plus = 0;
-                        if (index >= 26 && index <= 50) { plus = 15000; index = index % 26; }
-                        if (index >= 51) { plus = 30000; index = index % 51; }
 
+                createObstacles(pathId: number, x: number, y: number, index: number, max: number) {
 
-                        obstaclesX = 5000 + plus + (400 * index);
-                        return obstaclesX
+                        var start = (y - 100);
+                        var end = (y + 100);
+
+                        if (start < 100) { start = 100; end = 200; }
+                        else if (end > 400) { start = 300; end = 400; }
+
+                        y = this.game.rnd.integerInRange(start, end)
+                        var _y = Math.ceil(((800) + y) - (index * getObstacleLevel()));
+
+                        this.obstacleGroup.add(new Obstacle(this.game, this, "top", x, y, index, max, pathId));
+                        this.obstacleGroup.add(new Obstacle(this.game, this, "bottom", x, _y, index, max, pathId));
 
                 }
-
 
 
                 removeTorpedo() {
-
 
                         var torp: Torpedo = this.torpedoGroup.getFirstAlive();
 
                         if (torp) {
                                 torp.kill();
                         }
-
-
 
                 }
 
@@ -353,8 +337,6 @@ module k2016Game {
                 startGame() {
 
 
-                        // this.engineLoop.play();
-
                         this.tweenScroll(this);
                         this.player.body.allowGravity = true;
 
@@ -374,12 +356,14 @@ module k2016Game {
 
                 render() {
 
-                        if (this.cheat) {
+                        if (this.debugRender) {
                                 this.game.debug.cameraInfo(this.game.camera, 32, 32);
                                 this.game.debug.bodyInfo(this.player, 32, 132);
-                                this.game.debug.body(this.core);
-                               // this.game.debug.text(this.game.time.fps + "", 2, 14, "#00ff00");
+                               
+                                
+
                         }
+                        if(this.debugFps){ this.game.debug.text(this.game.time.fps + "", 2, 14, "#00ff00");}
 
 
 
@@ -429,6 +413,7 @@ module k2016Game {
                                 this.spawnBonus();
                                 this.spawnEnemyBomb();
                                 this.spawnEnemyTie();
+
 
                         }
 
@@ -484,11 +469,6 @@ module k2016Game {
                                                 this.game.time.events.add(3000, this.shot, this);
                                         }, this);
 
-
-
-
-
-
                                         break;
 
                         }
@@ -504,7 +484,6 @@ module k2016Game {
                         this.player.enableFire();
 
                 }
-
 
 
                 setMessage(_mess: string): void {
@@ -523,6 +502,30 @@ module k2016Game {
                         }, this)
 
 
+
+                }
+
+                setAction(_action: string): void {
+
+                        switch (_action) {
+
+                                case "createCore":
+                                        this.reactor = this.game.add.sprite(48800, 0, "reactor");
+                                        this.reactor.animations.add('light', [0, 1], 12, true).play();
+
+                                        this.core = this.game.add.sprite(48950, this.game.world.centerY - 10, "kyber");
+                                        this.game.add.tween(this.core).to({ y: this.core.y + 20 }, 2000, Phaser.Easing.Sinusoidal.InOut, true, 0, -1, true);
+
+                                        this.core.anchor.set(0.5);
+                                        this.game.physics.arcade.enableBody(this.core);
+                                        this.core.body.allowGravity = false;
+                                        this.core.body.collideWorldBounds = true;
+
+                                        this.enemyGroup.add(this.reactor);
+                                        this.enemyGroup.add(this.core);
+
+                                        break;
+                        }
 
                 }
 
@@ -575,11 +578,10 @@ module k2016Game {
                         if (_obj.bomb != undefined && _obj.bomb != null) this.bombIsActive = _obj.bomb;
                         if (_obj.bombSpawn != undefined && _obj.bombSpawn != null) this.bombSpawn = _obj.bombSpawn;
 
+                        if (_obj.action != undefined && _obj.action != null) this.setAction(_obj.action);
+
                         if (_obj.tie != undefined && _obj.tie != null) this.tieIsActive = _obj.tie;
                         if (_obj.tieSpawn != undefined && _obj.tieSpawn != null) this.tieSpawn = _obj.tieSpawn;
-
-
-
 
                 }
 
@@ -608,8 +610,7 @@ module k2016Game {
 
                 collisionHandlerBounds(_player: PlayerWing, _bound: Phaser.Sprite) {
 
-                        if (!this.cheat) {
-
+                        if (!this.debugCollide) {
 
 
                                 _player.kill();
@@ -634,7 +635,7 @@ module k2016Game {
 
 
                 collisionHandlerObstacles(_player: Player, _enemy: any) {
-                        if (!this.cheat) {
+                        if (!this.debugObstacles) {
                                 _player.kill();
 
                                 this.playerGroup.add(new Explosion(this.game, this, _player.x, _player.y, "exp3", "playerObstacle"));
@@ -678,7 +679,25 @@ module k2016Game {
                         if (!this.bonusIsActive) return;
                         if (this.randomBonusSpawnTime < this.game.time.now) {
                                 this.randomBonusSpawnTime = this.game.time.now + Math.abs(this.game.rnd.integerInRange(10, 20) * this.bonusSpawn);
+
+                                /*            
+                                            var bonus = this.bonusGroup.getFirstDead(true);
+            
+            console.log(bonus)
+                if (bonus)
+                {
+                    bonus.revive();
+                    console.log("revive");
+                }
+                else{
+             console.log("new bonus");
+                       
+            
+                }*/
+
                                 this.bonusGroup.add(new Bonus(this.game, this));
+
+                                // 
 
                         }
 

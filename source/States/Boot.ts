@@ -96,8 +96,15 @@ module k2016Game{
         }
 
      create(){
-           
-           //console.log("boot create")
+        
+
+		   if (this.game.device.touch && (this.game.device.iOS || this.game.device.android || this.game.device.windowsPhone)) {
+				setDevice(true);
+            }
+            else {
+                setDevice(false);
+            }
+
             this.game.stage.backgroundColor = '#000000';
 		    this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 		    this.game.stage.smoothed=false;

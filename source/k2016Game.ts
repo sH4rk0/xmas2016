@@ -17,6 +17,7 @@ module k2016Game {
     var _game: Phaser.Game;
     var _gameSetup: boolean = false;
     var _gameSounds: Array<Phaser.Sound> = [];
+    var _ismobile: boolean= true;
 
 
     export function setFirstTime(_val: boolean): void { _firstTime = _val; }
@@ -98,14 +99,14 @@ module k2016Game {
 
     }
 
-    export function isMobile(game: Phaser.Game): boolean {
+    export function isMobile(): boolean {
 
-        if (game.device.touch && (game.device.iOS || game.device.android || game.device.windowsPhone)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return _ismobile;
+    }
+
+    export function setDevice(isMobile:boolean): void {
+
+       _ismobile=isMobile;
     }
 
 
@@ -169,10 +170,26 @@ module k2016Game {
     }
 
 
+    export function getUrlParameter(sParam: string): any {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+
+
     export function goState(_state: string, _game: Phaser.Game): void {
 
         var st = <Phaser.Plugin.StateTransition>_game.plugins.add(Phaser.Plugin.StateTransition);
-        if (isMobile(_game)) {
+        if (isMobile()) {
 
             st.configure({
                 duration: 1000,
@@ -220,7 +237,7 @@ module k2016Game {
             } catch (err) { }
 
             this.game = new Phaser.Game(width, height, Phaser.CANVAS, "", null, false, true);
-
+            
             this.game.state.add("Boot", Boot, false);
             this.game.state.add("Preloader", Preloader, false);
             this.game.state.add("Menu", Menu, false);
@@ -228,6 +245,9 @@ module k2016Game {
             this.game.state.add("Gameover", GameOver, false);
             this.game.state.add("Gamewin", Gamewin, false);
             this.game.state.start("Boot");
+
+
+
 
         }
 
@@ -386,19 +406,10 @@ var gameData = {
             { name: "impressive", paths: ["assets/sounds/impressive.ogg", "assets/sounds/impressive.m4a"] },
             { name: "lockOn", paths: ["assets/sounds/lockOn.ogg", "assets/sounds/lockOn.m4a"] },
             */
-
-
-
-
-
-
-
-
-
         ],
 
         bitmapfont: [
-            { name: "carrier_command", imgpath: "assets/fonts/carrier_command.png", xmlpath: "assets/fonts/carrier_command.xml" }
+         //   { name: "commodore", imgpath: "assets/fonts/commodore.png", xmlpath: "assets/fonts/commodore.xml", jsonpath:"assets/fonts/commodore.json" }
         ]
 
     },
@@ -438,7 +449,7 @@ var gameData = {
 
             { startX: 47500, endX: 47600, started: false, level: { message: null, bonus: false, bomb: false, tie: false } },
 
-            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget" } },
+            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget", action:"createCore" } },
             { startX: 47900, endX: 48000, started: false, level: { vel: "decelerate4", pVel: 80, message: null, bonus: false, bomb: false, tie: false } },
             { startX: 48100, endX: 48200, started: false, level: { vel: "stop", pVel: 0, message: null, bonus: false, bomb: false, tie: false } },
 
@@ -478,7 +489,7 @@ var gameData = {
 
             { startX: 47500, endX: 47600, started: false, level: { message: null, bonus: false, bomb: false, tie: false } },
 
-            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget" } },
+            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget", action:"createCore" } },
             { startX: 47900, endX: 48000, started: false, level: { vel: "decelerate4", pVel: 80, message: null, bonus: false, bomb: false, tie: false } },
             { startX: 48100, endX: 48200, started: false, level: { vel: "stop", pVel: 0, message: null, bonus: false, bomb: false, tie: false } },
 
@@ -516,7 +527,7 @@ var gameData = {
 
             { startX: 47500, endX: 47600, started: false, level: { message: null, bonus: false, bomb: false, tie: false } },
 
-            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget" } },
+            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget", action:"createCore" } },
             { startX: 47900, endX: 48000, started: false, level: { vel: "decelerate4", pVel: 80, message: null, bonus: false, bomb: false, tie: false } },
             { startX: 48100, endX: 48200, started: false, level: { vel: "stop", pVel: 0, message: null, bonus: false, bomb: false, tie: false } },
 

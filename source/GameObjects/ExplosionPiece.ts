@@ -28,6 +28,8 @@ module k2016Game {
             this.anchor.setTo(0.5);
             this.scale.set(0.5);
 
+            if(!isMobile()){this.lifespan=5000;}else{this.lifespan=2000;}
+
             this.body.collideWorldBounds = false;
             var Xvector = (game.rnd.realInRange(-25, 25)) * 3;
             var Yvector = (game.rnd.realInRange(-25, 25)) * 3;
@@ -41,9 +43,6 @@ module k2016Game {
 
             this._angle=this.game.rnd.realInRange(-3,3);
             game.add.existing(this);
-
-
-
 
 
         }

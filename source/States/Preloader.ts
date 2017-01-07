@@ -23,6 +23,7 @@ module k2016Game {
 						this.loadingBar.visible=false;
 						this.loadingPerc.visible=false;
 						this.startBtn.visible=true;
+						 this.game.input.onDown.addOnce(function(){goState("Menu",this.game);}, this);
 			
 									}, this);
 	   
@@ -37,7 +38,7 @@ module k2016Game {
 			   _spriteText.anchor.set(0.5);
 			   this.startBtn.addChild(_spriteText);
 
-			   this.game.input.onDown.addOnce(function(){goState("Menu",this.game);}, this);
+			  
 			   
 	   	
             
@@ -67,12 +68,11 @@ module k2016Game {
 		}
 		
 		//bitmap fonts
-		/*	for (var i=0; i<gameData.assets.bitmapfont.length; i++){ 
+			for (var i=0; i<gameData.assets.bitmapfont.length; i++){ 
 		this.game.load.bitmapFont(gameData.assets.bitmapfont[i].name, gameData.assets.bitmapfont[i].imgpath, gameData.assets.bitmapfont[i].xmlpath);
-		}*/
+		}
 
 		// SOUNDS
-		 var _sound: Phaser.Sound;
            
 		for (var i=0; i<gameData.assets.sounds.length; i++){ 
 			this.game.load.audio(gameData.assets.sounds[i].name, gameData.assets.sounds[i].paths);

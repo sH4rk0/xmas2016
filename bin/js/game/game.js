@@ -19,6 +19,7 @@ var k2016Game;
                 this.loadingBar.visible = false;
                 this.loadingPerc.visible = false;
                 this.startBtn.visible = true;
+                this.game.input.onDown.addOnce(function () { k2016Game.goState("Menu", this.game); }, this);
             }, this);
             //start button
             //--------------------------
@@ -27,7 +28,6 @@ var k2016Game;
             var _spriteText = this.game.add.text(0, 0, 'START', { fill: '#ffffff' });
             _spriteText.anchor.set(0.5);
             this.startBtn.addChild(_spriteText);
-            this.game.input.onDown.addOnce(function () { k2016Game.goState("Menu", this.game); }, this);
             this.startBtn.visible = false;
             // this.loadingContainer.addChild(this.startBtn);
             //Loading container
@@ -49,11 +49,10 @@ var k2016Game;
                 this.game.load.spritesheet(gameData.assets.spritesheets[i].name, gameData.assets.spritesheets[i].path, gameData.assets.spritesheets[i].width, gameData.assets.spritesheets[i].height, gameData.assets.spritesheets[i].frames);
             }
             //bitmap fonts
-            /*	for (var i=0; i<gameData.assets.bitmapfont.length; i++){
-            this.game.load.bitmapFont(gameData.assets.bitmapfont[i].name, gameData.assets.bitmapfont[i].imgpath, gameData.assets.bitmapfont[i].xmlpath);
-            }*/
+            for (var i = 0; i < gameData.assets.bitmapfont.length; i++) {
+                this.game.load.bitmapFont(gameData.assets.bitmapfont[i].name, gameData.assets.bitmapfont[i].imgpath, gameData.assets.bitmapfont[i].xmlpath);
+            }
             // SOUNDS
-            var _sound;
             for (var i = 0; i < gameData.assets.sounds.length; i++) {
                 this.game.load.audio(gameData.assets.sounds[i].name, gameData.assets.sounds[i].paths);
             }
@@ -146,7 +145,12 @@ var k2016Game;
             this.game.cache.addBitmapData('core', bmd);
         };
         Boot.prototype.create = function () {
-            //console.log("boot create")
+            if (this.game.device.touch && (this.game.device.iOS || this.game.device.android || this.game.device.windowsPhone)) {
+                k2016Game.setDevice(true);
+            }
+            else {
+                k2016Game.setDevice(false);
+            }
             this.game.stage.backgroundColor = '#000000';
             this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
             this.game.stage.smoothed = false;
@@ -176,6 +180,7 @@ var k2016Game;
         Menu.prototype.preload = function () {
         };
         Menu.prototype.create = function () {
+            //this.game.time.advancedTiming = true;
             k2016Game.setUpGame(this.game);
             k2016Game.setScore(0);
             this.game.world.setBounds(0, 0, 1024, 600);
@@ -314,47 +319,49 @@ var k2016Game;
             this.buttonsGroup.add(this.btnRed);
             this.buttonsGroup.add(this.btnPurple);
             this.buttonsGroup.add(this.btnGreen);
-            this.back_emitter = this.game.add.emitter(this.game.world.centerX, -32, 50);
-            this.back_emitter.makeParticles('snowflakes', [0, 1, 2, 3, 4, 5]);
-            this.back_emitter.maxParticleScale = 0.6;
-            this.back_emitter.minParticleScale = 0.2;
-            this.back_emitter.setYSpeed(20, 100);
-            this.back_emitter.gravity = 0;
-            this.back_emitter.width = this.game.world.width * 1.5;
-            this.back_emitter.minRotation = 0;
-            this.back_emitter.maxRotation = 40;
-            this.back_emitter.frequency = 250;
-            this.back_emitter.lifespan = 14000;
-            this.back_emitter.z = 0;
-            this.penguinsGroup.add(this.back_emitter);
-            this.mid_emitter = this.game.add.emitter(this.game.world.centerX, -32, 25);
-            this.mid_emitter.makeParticles('snowflakes', [0, 1, 2, 3, 4, 5]);
-            this.mid_emitter.maxParticleScale = 1.2;
-            this.mid_emitter.minParticleScale = 0.8;
-            this.mid_emitter.setYSpeed(50, 150);
-            this.mid_emitter.gravity = 0;
-            this.mid_emitter.width = this.game.world.width * 1.5;
-            this.mid_emitter.minRotation = 0;
-            this.mid_emitter.maxRotation = 40;
-            this.mid_emitter.frequency = 250;
-            this.mid_emitter.lifespan = 12000;
-            this.penguinsGroup.add(this.mid_emitter);
-            this.front_emitter = this.game.add.emitter(this.game.world.centerX, -32, 12);
-            this.front_emitter.makeParticles('snowflakes_large', [0, 1, 2, 3, 4, 5]);
-            this.front_emitter.maxParticleScale = 1;
-            this.front_emitter.minParticleScale = 0.5;
-            this.front_emitter.setYSpeed(100, 200);
-            this.front_emitter.gravity = 0;
-            this.front_emitter.width = this.game.world.width * 1.5;
-            this.front_emitter.minRotation = 0;
-            this.front_emitter.maxRotation = 40;
-            this.front_emitter.frequency = 250;
-            this.front_emitter.lifespan = 6000;
-            this.penguinsGroup.add(this.front_emitter);
-            this.changeWindDirection();
-            this.back_emitter.start(false, 14000);
-            this.mid_emitter.start(false, 12000);
-            this.front_emitter.start(false, 6000);
+            if (!k2016Game.isMobile()) {
+                this.back_emitter = this.game.add.emitter(this.game.world.centerX, -32, 50);
+                this.back_emitter.makeParticles('snowflakes', [0, 1, 2, 3, 4, 5]);
+                this.back_emitter.maxParticleScale = 0.6;
+                this.back_emitter.minParticleScale = 0.2;
+                this.back_emitter.setYSpeed(20, 100);
+                this.back_emitter.gravity = 0;
+                this.back_emitter.width = this.game.world.width * 1.5;
+                this.back_emitter.minRotation = 0;
+                this.back_emitter.maxRotation = 40;
+                this.back_emitter.frequency = 250;
+                this.back_emitter.lifespan = 14000;
+                this.back_emitter.z = 0;
+                this.penguinsGroup.add(this.back_emitter);
+                this.mid_emitter = this.game.add.emitter(this.game.world.centerX, -32, 25);
+                this.mid_emitter.makeParticles('snowflakes', [0, 1, 2, 3, 4, 5]);
+                this.mid_emitter.maxParticleScale = 1.2;
+                this.mid_emitter.minParticleScale = 0.8;
+                this.mid_emitter.setYSpeed(50, 150);
+                this.mid_emitter.gravity = 0;
+                this.mid_emitter.width = this.game.world.width * 1.5;
+                this.mid_emitter.minRotation = 0;
+                this.mid_emitter.maxRotation = 40;
+                this.mid_emitter.frequency = 250;
+                this.mid_emitter.lifespan = 12000;
+                this.penguinsGroup.add(this.mid_emitter);
+                this.front_emitter = this.game.add.emitter(this.game.world.centerX, -32, 12);
+                this.front_emitter.makeParticles('snowflakes_large', [0, 1, 2, 3, 4, 5]);
+                this.front_emitter.maxParticleScale = 1;
+                this.front_emitter.minParticleScale = 0.5;
+                this.front_emitter.setYSpeed(100, 200);
+                this.front_emitter.gravity = 0;
+                this.front_emitter.width = this.game.world.width * 1.5;
+                this.front_emitter.minRotation = 0;
+                this.front_emitter.maxRotation = 40;
+                this.front_emitter.frequency = 250;
+                this.front_emitter.lifespan = 6000;
+                this.penguinsGroup.add(this.front_emitter);
+                this.changeWindDirection();
+                this.back_emitter.start(false, 14000);
+                this.mid_emitter.start(false, 12000);
+                this.front_emitter.start(false, 6000);
+            }
             k2016Game.playSound(k2016Game.gameSound.intro);
             _style = { font: 'normal 40px', fill: '#ffffff', stroke: '#000000', strokeThickness: 8, wordWrap: true, wordWrapWidth: 1000 };
             this.textwriter = this.game.add.text(this.game.world.centerX, this.game.world.centerY, "", _style);
@@ -403,6 +410,9 @@ var k2016Game;
             else {
                 this.openCurtain();
             }
+        };
+        Menu.prototype.render = function () {
+            // this.game.debug.text(this.game.time.fps + "", 2, 14, "#00ff00");
         };
         Menu.prototype.openCredits = function () {
             this.game.time.events.add(300, function () { k2016Game.playSound(k2016Game.gameSound.lightsaber); }, this);
@@ -817,7 +827,10 @@ var k2016Game;
             var _text = 'You score ONLY ' + k2016Game.getScore() + ' points!\n' + this.insulti[this.game.rnd.integerInRange(0, this.insulti.length - 1)];
             var _gameOverSpeech = this.game.add.text(210, 390, _text, _style);
             _gameOverSpeech.font = 'Press Start 2P';
-            anonymous();
+            var _anonymous = k2016Game.getUrlParameter("anonymous") ? true : false;
+            if (!_anonymous) {
+                anonymous();
+            }
         };
         GameOver.prototype.update = function () {
         };
@@ -842,6 +855,7 @@ var k2016Game;
     var _game;
     var _gameSetup = false;
     var _gameSounds = [];
+    var _ismobile = true;
     function setFirstTime(_val) { _firstTime = _val; }
     k2016Game.setFirstTime = setFirstTime;
     function getFirstTime() { return _firstTime; }
@@ -909,15 +923,14 @@ var k2016Game;
         }
     }
     k2016Game.setUpGame = setUpGame;
-    function isMobile(game) {
-        if (game.device.touch && (game.device.iOS || game.device.android || game.device.windowsPhone)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    function isMobile() {
+        return _ismobile;
     }
     k2016Game.isMobile = isMobile;
+    function setDevice(isMobile) {
+        _ismobile = isMobile;
+    }
+    k2016Game.setDevice = setDevice;
     function getLevel() { return _level; }
     k2016Game.getLevel = getLevel;
     function getLevelLabel() {
@@ -961,9 +974,20 @@ var k2016Game;
         return difficult;
     }
     k2016Game.getObstacleLevel = getObstacleLevel;
+    function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)), sURLVariables = sPageURL.split('&'), sParameterName, i;
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    }
+    k2016Game.getUrlParameter = getUrlParameter;
+    ;
     function goState(_state, _game) {
         var st = _game.plugins.add(Phaser.Plugin.StateTransition);
-        if (isMobile(_game)) {
+        if (isMobile()) {
             st.configure({
                 duration: 1000,
                 ease: Phaser.Easing.Exponential.InOut,
@@ -1112,9 +1136,7 @@ var gameData = {
             { name: "tieFly", paths: ["assets/sounds/tieFly.ogg", "assets/sounds/tieFly.m4a"], volume: .5, loop: false },
             { name: "useTheForce", paths: ["assets/sounds/useTheForce.ogg", "assets/sounds/useTheForce.m4a"], volume: .5, loop: false }
         ],
-        bitmapfont: [
-            { name: "carrier_command", imgpath: "assets/fonts/carrier_command.png", xmlpath: "assets/fonts/carrier_command.xml" }
-        ]
+        bitmapfont: []
     },
     levels: [
         //pussy
@@ -1141,7 +1163,7 @@ var gameData = {
             { startX: 44900, endX: 45000, started: false, level: { vel: null, pVel: null, message: "LAST RUSH...BE FOCUS!" } },
             { startX: 45200, endX: 45300, started: false, level: { vel: "accelerate", pVel: 100, message: null, bonus: true, bomb: true, bombSpawn: 250, tie: true, tieSpawn: 300 } },
             { startX: 47500, endX: 47600, started: false, level: { message: null, bonus: false, bomb: false, tie: false } },
-            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget" } },
+            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget", action: "createCore" } },
             { startX: 47900, endX: 48000, started: false, level: { vel: "decelerate4", pVel: 80, message: null, bonus: false, bomb: false, tie: false } },
             { startX: 48100, endX: 48200, started: false, level: { vel: "stop", pVel: 0, message: null, bonus: false, bomb: false, tie: false } },
         ],
@@ -1169,7 +1191,7 @@ var gameData = {
             { startX: 44900, endX: 45000, started: false, level: { vel: null, pVel: null, message: "LAST RUSH...BE FOCUS!" } },
             { startX: 45200, endX: 45300, started: false, level: { vel: "accelerate", pVel: 100, message: null, bonus: true, bomb: true, bombSpawn: 200, tie: true, tieSpawn: 250 } },
             { startX: 47500, endX: 47600, started: false, level: { message: null, bonus: false, bomb: false, tie: false } },
-            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget" } },
+            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget", action: "createCore" } },
             { startX: 47900, endX: 48000, started: false, level: { vel: "decelerate4", pVel: 80, message: null, bonus: false, bomb: false, tie: false } },
             { startX: 48100, endX: 48200, started: false, level: { vel: "stop", pVel: 0, message: null, bonus: false, bomb: false, tie: false } },
         ],
@@ -1197,7 +1219,7 @@ var gameData = {
             { startX: 44900, endX: 45000, started: false, level: { vel: null, pVel: null, message: "LAST RUSH...BE FOCUS!" } },
             { startX: 45200, endX: 45300, started: false, level: { vel: "accelerate", pVel: 100, message: null, bonus: true, bomb: true, bombSpawn: 150, tie: true, tieSpawn: 200 } },
             { startX: 47500, endX: 47600, started: false, level: { message: null, bonus: false, bomb: false, tie: false } },
-            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget" } },
+            { startX: 47800, endX: 47900, started: false, level: { sound: "stayOnTarget", action: "createCore" } },
             { startX: 47900, endX: 48000, started: false, level: { vel: "decelerate4", pVel: 80, message: null, bonus: false, bomb: false, tie: false } },
             { startX: 48100, endX: 48200, started: false, level: { vel: "stop", pVel: 0, message: null, bonus: false, bomb: false, tie: false } },
         ]
@@ -1334,7 +1356,9 @@ var k2016Game;
         }
         Bomb.prototype.update = function () {
             this.x -= this.vel;
-            this.angle -= this.vel;
+            if (!k2016Game.isMobile()) {
+                this.angle -= this.vel;
+            }
             if (this.game.physics.arcade.distanceBetween(this, this.gameState.player) < 60 && !this.checkOnce) {
                 this.checkOnce = true;
                 this.gameState.player.yeahh();
@@ -1454,13 +1478,17 @@ var k2016Game;
             }
             game.add.existing(this);
             if (type == "bomb" || type == "tie") {
-                for (var i = 0; i < 10; i++) {
-                    this.gameState.playerGroup.add(new k2016Game.ExplosionPiece(this.game, this.gameState, x, y, "trash" + (i + 1), "enemy"));
+                if (!k2016Game.isMobile()) {
+                    for (var i = 0; i < 10; i++) {
+                        this.gameState.playerGroup.add(new k2016Game.ExplosionPiece(this.game, this.gameState, x, y, "trash" + (i + 1), "enemy"));
+                    }
                 }
             }
             else if (type == "player") {
-                for (var i = 0; i < 5; i++) {
-                    this.gameState.playerGroup.add(new k2016Game.ExplosionPiece(this.game, this.gameState, x, y, "trash" + (i + 1), "enemy"));
+                if (!k2016Game.isMobile()) {
+                    for (var i = 0; i < 5; i++) {
+                        this.gameState.playerGroup.add(new k2016Game.ExplosionPiece(this.game, this.gameState, x, y, "trash" + (i + 1), "enemy"));
+                    }
                 }
                 this.gameState.playerGroup.add(new k2016Game.ExplosionPiece(this.game, this.gameState, x, y, "expDelucaArm", "player"));
                 this.gameState.playerGroup.add(new k2016Game.ExplosionPiece(this.game, this.gameState, x, y, "expDelucaArm", "player"));
@@ -1499,6 +1527,12 @@ var k2016Game;
             this.body.moves = true;
             this.anchor.setTo(0.5);
             this.scale.set(0.5);
+            if (!k2016Game.isMobile()) {
+                this.lifespan = 5000;
+            }
+            else {
+                this.lifespan = 2000;
+            }
             this.body.collideWorldBounds = false;
             var Xvector = (game.rnd.realInRange(-25, 25)) * 3;
             var Yvector = (game.rnd.realInRange(-25, 25)) * 3;
@@ -1525,19 +1559,28 @@ var k2016Game;
 (function (k2016Game) {
     var Obstacle = (function (_super) {
         __extends(Obstacle, _super);
-        function Obstacle(game, gameState, type, x, y) {
+        function Obstacle(game, gameState, type, x, y, index, max, pathId) {
             _super.call(this, game, x, y, "collider");
             this.game = game;
             this.gameState = gameState;
+            this.startX = x;
+            this.index = index;
+            this.pathId = pathId;
+            this.max = max;
             this.who = type;
             this.scrolled = false;
             this.game.physics.arcade.enable(this);
             this.body.immovable = true;
             this.body.allowGravity = false;
             this.anchor.set(.5, 1);
+            this.createNext = true;
             game.add.existing(this);
         }
         Obstacle.prototype.update = function () {
+            if (((this.startX - this.game.camera.x) < 800) && this.createNext && (this.who == "top") && (this.index < this.max)) {
+                this.gameState.createObstacles(this.pathId, this.startX + 400, this.y, this.index + 1, this.max);
+                this.createNext = false;
+            }
             if (this.x < this.gameState.player.x && !this.scrolled && this.who == "top") {
                 this.scrolled = true;
                 this.gameState.tweenScore(50);
@@ -1558,6 +1601,9 @@ var k2016Game;
             }
         };
         Obstacle.prototype.removeObstacle = function () {
+            if (this.max == this.index && this.who == "top") {
+                this.gameState.setupPath(this.pathId + 1);
+            }
             this.kill();
             this.destroy();
         };
@@ -2087,7 +2133,9 @@ var k2016Game;
         Trash.prototype.update = function () {
             //return;
             this.x -= this._vel;
-            this.angle += .5;
+            if (!k2016Game.isMobile()) {
+                this.angle += .5;
+            }
             if (this.x < this.game.camera.x - 100) {
                 this.x = this.game.camera.x + 1024 + 100;
                 this.setValues();
@@ -2159,7 +2207,10 @@ var k2016Game;
             var _text = 'You score is ' + k2016Game.getScore() + ' points!';
             var _gameOverSpeech = this.game.add.text(210, 390, _text, _style);
             _gameOverSpeech.font = 'Press Start 2P';
-            anonymous();
+            var _anonymous = k2016Game.getUrlParameter("anonymous") ? true : false;
+            if (!_anonymous) {
+                anonymous();
+            }
         };
         Gamewin.prototype.update = function () {
         };
@@ -2180,14 +2231,25 @@ var k2016Game;
         }
         GameWing.prototype.preload = function () { };
         GameWing.prototype.create = function () {
-            // this.game.time.advancedTiming = true;
-            this.cheat = false;
+            this.debugFps = k2016Game.getUrlParameter("fps") ? true : false;
+            this.debugRender = k2016Game.getUrlParameter("render") ? true : false;
+            this.debugCheat = k2016Game.getUrlParameter("cheat") ? true : false;
+            this.debugCollide = k2016Game.getUrlParameter("collide") ? true : false;
+            this.debugObstacles = k2016Game.getUrlParameter("obstacle") ? true : false;
+            if (this.debugFps) {
+                this.game.time.advancedTiming = true;
+            }
+            this.cheat = this.debugCheat;
             this.playerStart = null; //number value or null
             this.torpedo = 0;
+            this.paths = [
+                { pathid: 0, start: 5000, distance: 200, index: 0, max: 24 },
+                { pathid: 1, start: 20000, distance: 200, index: 24, max: 49 },
+                { pathid: 2, start: 35000, distance: 200, index: 49, max: 74 }
+            ];
             k2016Game.setScore(0);
             this.realScore = 0;
             this.story = k2016Game.getLevelData();
-            // console.log(this.story);
             this.bonusIsActive = false;
             this.bombIsActive = false;
             this.tieIsActive = false;
@@ -2197,7 +2259,6 @@ var k2016Game;
             this.game.physics.arcade.gravity.y = 400;
             this.game.world.setBounds(0, 0, 52000, 600);
             this.game.camera.x = 0;
-            //this.game.world.x=0;  
             this.randomBonusSpawnTime = this.game.time.now;
             this.bonusSpawn = 100;
             this.randomEnemySpawnTime = this.game.time.now;
@@ -2229,7 +2290,7 @@ var k2016Game;
             this.layer1 = this.game.add.tileSprite(0, -50, 1024, 700, 'layer1');
             this.layer1.fixedToCamera = true;
             this.backgroundGroupFront.add(this.layer1);
-            if (k2016Game.isMobile(this.game)) {
+            if (k2016Game.isMobile()) {
                 this.game.input.onDown.addOnce(this.startGame, this);
                 this.game.input.onDown.add(this.player.flap, this.player);
             }
@@ -2265,22 +2326,24 @@ var k2016Game;
             this.colliderBottom.visible = false;
             this.colliderBottom.body.allowGravity = false;
             this.colliderGroup.add(this.colliderBottom);
-            this.trashGroup.add(new k2016Game.Trash(this.game, 1, 100, 200, 3, false));
-            this.trashGroup.add(new k2016Game.Trash(this.game, 2, 400, 200, 3, false));
-            this.trashGroup.add(new k2016Game.Trash(this.game, 3, 300, 200, 3, false));
-            if (!k2016Game.isMobile(this.game)) {
+            // less trash for mobile
+            if (!k2016Game.isMobile()) {
+                this.trashGroup.add(new k2016Game.Trash(this.game, 1, 100, 200, 3, false));
+                this.trashGroup.add(new k2016Game.Trash(this.game, 2, 400, 200, 3, false));
+                this.trashGroup.add(new k2016Game.Trash(this.game, 3, 300, 200, 3, false));
                 this.trashGroup.add(new k2016Game.Trash(this.game, 4, 200, 200, 3, false));
                 this.trashGroup.add(new k2016Game.Trash(this.game, 5, 500, 200, 3, false));
                 this.trashGroup.add(new k2016Game.Trash(this.game, 6, 800, 200, 3, false));
                 this.trashGroupFront.add(new k2016Game.Trash(this.game, 7, 900, 200, 3, false));
                 this.trashGroupFront.add(new k2016Game.Trash(this.game, 8, 450, 200, 3, false));
                 this.trashGroupFront.add(new k2016Game.Trash(this.game, 9, 330, 200, 3, false));
+                this.trashGroupFront.add(new k2016Game.Trash(this.game, 10, 210, 200, 3, false));
+                this.trashGroupFront.add(new k2016Game.Trash(this.game, 11, 100, 200, 3, false));
+                this.trashGroupFront.add(new k2016Game.Trash(this.game, 12, 700, 200, 3, false));
             }
-            this.trashGroupFront.add(new k2016Game.Trash(this.game, 10, 210, 200, 3, false));
-            this.trashGroupFront.add(new k2016Game.Trash(this.game, 11, 100, 200, 3, false));
-            this.trashGroupFront.add(new k2016Game.Trash(this.game, 12, 700, 200, 3, false));
-            this.setupPath();
+            this.setupPath(0);
             k2016Game.playSound(k2016Game.gameSound.ingame);
+            k2016Game.setSoundVolume(k2016Game.gameSound.engine, 0.5);
             k2016Game.playSound(k2016Game.gameSound.engine);
         };
         GameWing.prototype.win = function () {
@@ -2305,57 +2368,27 @@ var k2016Game;
                 }, this);
             }
         };
-        GameWing.prototype.setupPath = function () {
-            this.reactor = this.game.add.sprite(48800, 0, "reactor");
-            this.reactor.animations.add('light', [0, 1], 12, true).play();
-            this.core = this.game.add.sprite(48950, this.game.world.centerY - 10, "kyber");
-            this.game.add.tween(this.core).to({ y: this.core.y + 20 }, 2000, Phaser.Easing.Sinusoidal.InOut, true, 0, -1, true);
-            this.core.anchor.set(0.5);
-            this.game.physics.arcade.enableBody(this.core);
-            this.core.body.allowGravity = false;
-            this.core.body.collideWorldBounds = true;
-            this.enemyGroup.add(this.reactor);
-            this.enemyGroup.add(this.core);
-            var lastY = 200;
-            var start;
-            var end;
-            var _x;
-            var _y;
-            var _obstacleLvl = k2016Game.getObstacleLevel();
-            for (var o = 0; o <= 75; o++) {
-                _x = this.setTopX(o);
-                //_y= 800 + lastY;
-                _y = Math.ceil((800 - (o * _obstacleLvl)) + lastY);
-                // _y= 600 + (200 - (o * _obstacleLvl)) + lastY;
-                //console.log(o, Math.ceil((_y-lastY)-600));
-                this.obstacleGroup.add(new k2016Game.Obstacle(this.game, this, "top", _x, lastY));
-                this.obstacleGroup.add(new k2016Game.Obstacle(this.game, this, "bottom", _x, _y));
-                start = (lastY - 100);
-                end = (lastY + 100);
-                if (start < 100) {
-                    start = 100;
-                    end = 200;
-                }
-                else if (end > 400) {
-                    start = 300;
-                    end = 400;
-                }
-                lastY = this.game.rnd.integerInRange(start, end);
+        GameWing.prototype.setupPath = function (index) {
+            if (index > this.paths.length - 1) {
+                return;
             }
+            this.createObstacles(this.paths[index].pathid, this.paths[index].start, this.paths[index].distance, this.paths[index].index, this.paths[index].max);
         };
-        GameWing.prototype.setTopX = function (index) {
-            var obstaclesX;
-            var plus = 0;
-            if (index >= 26 && index <= 50) {
-                plus = 15000;
-                index = index % 26;
+        GameWing.prototype.createObstacles = function (pathId, x, y, index, max) {
+            var start = (y - 100);
+            var end = (y + 100);
+            if (start < 100) {
+                start = 100;
+                end = 200;
             }
-            if (index >= 51) {
-                plus = 30000;
-                index = index % 51;
+            else if (end > 400) {
+                start = 300;
+                end = 400;
             }
-            obstaclesX = 5000 + plus + (400 * index);
-            return obstaclesX;
+            y = this.game.rnd.integerInRange(start, end);
+            var _y = Math.ceil(((800) + y) - (index * k2016Game.getObstacleLevel()));
+            this.obstacleGroup.add(new k2016Game.Obstacle(this.game, this, "top", x, y, index, max, pathId));
+            this.obstacleGroup.add(new k2016Game.Obstacle(this.game, this, "bottom", x, _y, index, max, pathId));
         };
         GameWing.prototype.removeTorpedo = function () {
             var torp = this.torpedoGroup.getFirstAlive();
@@ -2373,7 +2406,6 @@ var k2016Game;
             this.enemyGroup.add(new k2016Game.TieAttack(this.game, this, 450));
         };
         GameWing.prototype.startGame = function () {
-            // this.engineLoop.play();
             this.tweenScroll(this);
             this.player.body.allowGravity = true;
             this.player.play("fly");
@@ -2388,10 +2420,12 @@ var k2016Game;
             this.game.add.tween(this.readyText).to({ alpha: 0 }, 500, Phaser.Easing.Quadratic.In, true, 0);
         };
         GameWing.prototype.render = function () {
-            if (this.cheat) {
+            if (this.debugRender) {
                 this.game.debug.cameraInfo(this.game.camera, 32, 32);
                 this.game.debug.bodyInfo(this.player, 32, 132);
-                this.game.debug.body(this.core);
+            }
+            if (this.debugFps) {
+                this.game.debug.text(this.game.time.fps + "", 2, 14, "#00ff00");
             }
         };
         GameWing.prototype.playerKilled = function () {
@@ -2468,6 +2502,22 @@ var k2016Game;
                 this.game.add.tween(this.readyText).to({ alpha: 0 }, 500, Phaser.Easing.Quadratic.In, true, 2000);
             }, this);
         };
+        GameWing.prototype.setAction = function (_action) {
+            switch (_action) {
+                case "createCore":
+                    this.reactor = this.game.add.sprite(48800, 0, "reactor");
+                    this.reactor.animations.add('light', [0, 1], 12, true).play();
+                    this.core = this.game.add.sprite(48950, this.game.world.centerY - 10, "kyber");
+                    this.game.add.tween(this.core).to({ y: this.core.y + 20 }, 2000, Phaser.Easing.Sinusoidal.InOut, true, 0, -1, true);
+                    this.core.anchor.set(0.5);
+                    this.game.physics.arcade.enableBody(this.core);
+                    this.core.body.allowGravity = false;
+                    this.core.body.collideWorldBounds = true;
+                    this.enemyGroup.add(this.reactor);
+                    this.enemyGroup.add(this.core);
+                    break;
+            }
+        };
         GameWing.prototype.setSound = function (_sound) {
             //console.log(_sound);
             switch (_sound) {
@@ -2508,6 +2558,8 @@ var k2016Game;
                 this.bombIsActive = _obj.bomb;
             if (_obj.bombSpawn != undefined && _obj.bombSpawn != null)
                 this.bombSpawn = _obj.bombSpawn;
+            if (_obj.action != undefined && _obj.action != null)
+                this.setAction(_obj.action);
             if (_obj.tie != undefined && _obj.tie != null)
                 this.tieIsActive = _obj.tie;
             if (_obj.tieSpawn != undefined && _obj.tieSpawn != null)
@@ -2527,7 +2579,7 @@ var k2016Game;
             }
         };
         GameWing.prototype.collisionHandlerBounds = function (_player, _bound) {
-            if (!this.cheat) {
+            if (!this.debugCollide) {
                 _player.kill();
                 if (_bound.name == "colliderBottom") {
                     this.playerGroup.add(new k2016Game.Explosion(this.game, this, _player.x, _player.y, "exp3", "playerBoundBottom"));
@@ -2538,7 +2590,7 @@ var k2016Game;
             }
         };
         GameWing.prototype.collisionHandlerObstacles = function (_player, _enemy) {
-            if (!this.cheat) {
+            if (!this.debugObstacles) {
                 _player.kill();
                 this.playerGroup.add(new k2016Game.Explosion(this.game, this, _player.x, _player.y, "exp3", "playerObstacle"));
             }
@@ -2561,6 +2613,20 @@ var k2016Game;
                 return;
             if (this.randomBonusSpawnTime < this.game.time.now) {
                 this.randomBonusSpawnTime = this.game.time.now + Math.abs(this.game.rnd.integerInRange(10, 20) * this.bonusSpawn);
+                /*
+                            var bonus = this.bonusGroup.getFirstDead(true);
+
+console.log(bonus)
+if (bonus)
+{
+    bonus.revive();
+    console.log("revive");
+}
+else{
+console.log("new bonus");
+       
+
+}*/
                 this.bonusGroup.add(new k2016Game.Bonus(this.game, this));
             }
         };

@@ -100,7 +100,8 @@ module k2016Game {
 		    _gameOverSpeech.font='Press Start 2P';
 
 
-           anonymous();
+           var _anonymous = getUrlParameter("anonymous") ? true : false;
+            if(!_anonymous){anonymous();}
            
 
 

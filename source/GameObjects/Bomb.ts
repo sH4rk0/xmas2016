@@ -21,8 +21,8 @@ module k2016Game {
             this.game = game;
             this.gameState = gameState;
 
-            this.checkOnce=false;
-            this.name="bomb";
+            this.checkOnce = false;
+            this.name = "bomb";
             this.game.physics.arcade.enable(this);
             this.body.immovable = false;
             this.body.allowGravity = false;
@@ -36,7 +36,7 @@ module k2016Game {
             }
 
             this.play('anim');
-            this.vel=game.rnd.realInRange(2,4);
+            this.vel = game.rnd.realInRange(2, 4);
             game.add.existing(this)
 
             //this.game.add.tween(this).to({ y: this.y+20, }, 1000, Phaser.Easing.Sinusoidal.InOut, true, 0, -1, true)
@@ -48,21 +48,24 @@ module k2016Game {
         update() {
 
             this.x -= this.vel;
-            this.angle -=this.vel;
-            if(this.game.physics.arcade.distanceBetween(this,this.gameState.player)<60 && !this.checkOnce){
-               
-                this.checkOnce=true;
+            if (!isMobile()) { this.angle -= this.vel; }
+
+
+            if (this.game.physics.arcade.distanceBetween(this, this.gameState.player) < 60 && !this.checkOnce) {
+
+                this.checkOnce = true;
                 this.gameState.player.yeahh();
-               
+
 
             }
+
 
             if (this.x < this.game.camera.x - 100) {
 
                 this.removeEnemy()
             }
 
-            
+
 
         }
 

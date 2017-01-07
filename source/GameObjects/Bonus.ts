@@ -20,8 +20,8 @@ module k2016Game {
             super(game, game.camera.x + 1024 + 100, 0, "bonus");
 
             this.game = game;
-
             this.gameState = gameState;
+            
             this.game.physics.arcade.enable(this);
             this.body.immovable = false;
             this.body.allowGravity = false;
@@ -96,7 +96,7 @@ scoreTween.onComplete.add(function(){
 
             if (score) { 
                 this.gameState.tweenScore((100 * this.type)); 
-              this.dissolve();
+                this.dissolve();
         }
           
             this.kill();

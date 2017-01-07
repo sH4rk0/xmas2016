@@ -47,7 +47,8 @@ module k2016Game {
             //return;
 
             this.x -= this._vel;
-            this.angle += .5;
+             if (!isMobile()) {this.angle += .5;}
+
             if (this.x < this.game.camera.x-100) {
                 this.x = this.game.camera.x+1024+100;
                 this.setValues()

@@ -68,7 +68,7 @@ module k2016Game {
         }
 
         create() {
-
+             //this.game.time.advancedTiming = true;
             setUpGame(this.game);
 
             setScore(0);
@@ -259,7 +259,7 @@ module k2016Game {
             this.buttonsGroup.add(this.btnPurple);
             this.buttonsGroup.add(this.btnGreen);
 
-
+ if (!isMobile()) {
 
             this.back_emitter = this.game.add.emitter(this.game.world.centerX, -32, 50);
             this.back_emitter.makeParticles('snowflakes', [0, 1, 2, 3, 4, 5]);
@@ -306,7 +306,7 @@ module k2016Game {
             this.back_emitter.start(false, 14000);
             this.mid_emitter.start(false, 12000);
             this.front_emitter.start(false, 6000);
-
+ }
             playSound(gameSound.intro);
 
             _style = { font: 'normal 40px', fill: '#ffffff', stroke: '#000000', strokeThickness: 8, wordWrap: true, wordWrapWidth: 1000 };
@@ -372,6 +372,14 @@ module k2016Game {
 
         }
 
+
+        render (){
+
+
+
+           // this.game.debug.text(this.game.time.fps + "", 2, 14, "#00ff00");
+        }
+
          openCredits() {
 
             this.game.time.events.add(300, function () { playSound(gameSound.lightsaber); }, this);
@@ -381,9 +389,9 @@ module k2016Game {
 
                 this.creditGroup.ignoreChildInput = false;
 
-            }, this)
-
+            }, this);
         }
+
 
          closeCredits() {
 

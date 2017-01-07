@@ -62,22 +62,29 @@ module k2016Game {
 
             if (type == "bomb" || type == "tie") {
 
+                 if (!isMobile()){
 
-                for (var i = 0; i < 10; i++) {
+                      for (var i = 0; i < 10; i++) {
 
                     this.gameState.playerGroup.add(new ExplosionPiece(this.game, this.gameState, x, y, "trash" + (i + 1), "enemy"));
 
-                }
+                        }
+                 }
+               
 
             }
 
             else if (type == "player") {
 
+                if(!isMobile()){
+
+               
                 for (var i = 0; i < 5; i++) {
 
                     this.gameState.playerGroup.add(new ExplosionPiece(this.game, this.gameState, x, y, "trash" + (i + 1), "enemy"));
 
-                }
+                } 
+            }
 
                 this.gameState.playerGroup.add(new ExplosionPiece(this.game, this.gameState, x, y, "expDelucaArm", "player"));
                 this.gameState.playerGroup.add(new ExplosionPiece(this.game, this.gameState, x, y, "expDelucaArm", "player"));

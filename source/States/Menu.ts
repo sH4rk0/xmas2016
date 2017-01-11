@@ -359,7 +359,7 @@ module k2016Game {
             //credits screen end
             //------------------------------------------
 
-            this.game.input.onDown.addOnce(this.openCurtain, this);
+            this.game.input.onDown.addOnce(this.skipIntro, this);
 
              
 
@@ -439,7 +439,18 @@ module k2016Game {
         }
 
 
+        skipIntro(){
+
+              if(!getFirstTime()) return;
+              this.openCurtain();
+
+        }
+
         openCurtain() {
+
+
+
+          
                     this.introSkip.alpha=0;
                             setFirstTime(false);
                             this.textwriter.text = "";

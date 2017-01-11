@@ -401,7 +401,7 @@ var k2016Game;
             this.creditGroup.alpha = 0;
             //credits screen end
             //------------------------------------------
-            this.game.input.onDown.addOnce(this.openCurtain, this);
+            this.game.input.onDown.addOnce(this.skipIntro, this);
             //setFirstTime(false);
             //this.openCurtain()
             if (k2016Game.getFirstTime()) {
@@ -445,6 +445,11 @@ var k2016Game;
             tween.onComplete.add(function () {
                 this.buttonsGroup.ignoreChildInput = false;
             }, this);
+        };
+        Menu.prototype.skipIntro = function () {
+            if (!k2016Game.getFirstTime())
+                return;
+            this.openCurtain();
         };
         Menu.prototype.openCurtain = function () {
             this.introSkip.alpha = 0;

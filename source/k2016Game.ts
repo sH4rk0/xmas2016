@@ -9,7 +9,6 @@
 
 module k2016Game {
 
-
     var _newGame: initGame;
     var _playerScore: number = 0;
     var _firstTime: boolean = true;
@@ -18,7 +17,6 @@ module k2016Game {
     var _gameSetup: boolean = false;
     var _gameSounds: Array<Phaser.Sound> = [];
     var _ismobile: boolean= true;
-
 
     export function setFirstTime(_val: boolean): void { _firstTime = _val; }
     export function getFirstTime(): boolean { return _firstTime; }
@@ -416,7 +414,7 @@ var gameData = {
 
     levels: [
 
-        //pussy
+        //jar jar
         [
 
             { startX: 0, endX: 100, started: false, level: { vel: "accelerate", pVel: 100, message: null, sound: "attackSequence", bonus: false, bomb: false, tie: false } },
@@ -456,7 +454,7 @@ var gameData = {
         ],
 
 
-        //normal
+        //trooper
         [
 
             { startX: 0, endX: 100, started: false, level: { vel: "accelerate", pVel: 100, message: null, sound: "attackSequence", bonus: false, bomb: false, tie: false } },
@@ -494,7 +492,7 @@ var gameData = {
             { startX: 48100, endX: 48200, started: false, level: { vel: "stop", pVel: 0, message: null, bonus: false, bomb: false, tie: false } },
 
         ],
-        //Hard
+        //jedi
         [
 
             { startX: 0, endX: 200, started: false, level: { vel: "accelerate", pVel: 100, message: null, sound: "attackSequence", bonus: false, bomb: false, tie: false } },
